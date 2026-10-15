@@ -157,8 +157,9 @@ footer img{width:105px;background:#fff;border-radius:50%}footer p{font-size:12px
 <script>
 const safe=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const money=v=>Number(v||0).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';
-const order=JSON.parse(localStorage.getItem('emPoissonnerieOrder')||'{}');
-const customer=JSON.parse(localStorage.getItem('emPoissonnerieCustomer')||'{}');
+const receipt=JSON.parse(localStorage.getItem('emPoissonnerieFinalOrder')||'null');
+const order=JSON.parse(localStorage.getItem('emPoissonnerieOrder')||'null')||receipt?.order||{};
+const customer=JSON.parse(localStorage.getItem('emPoissonnerieCustomer')||'null')||receipt?.customer||{};
 
 document.getElementById('firstName').textContent=customer.firstName||'—';
 document.getElementById('lastName').textContent=customer.lastName||'—';
