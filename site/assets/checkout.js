@@ -8,6 +8,9 @@
   error.style.color = '#a32626';
   error.hidden = true;
   button.insertAdjacentElement('afterend', error);
+  const clearCart = () => {
+    ['emPoissonnerieOrder', 'emPoissonnerieCustomer', 'emPoissonnerieCheckout', 'emPoissonnerieSubmission'].forEach(key => localStorage.removeItem(key));
+  };
   const fingerprint = JSON.stringify({order, customer});
   let requestState;
   try { requestState = JSON.parse(localStorage.getItem('emPoissonnerieSubmission') || 'null'); } catch (_) {}
@@ -21,6 +24,16 @@
     button.disabled = true;
     button.textContent = 'Commande validée ✓';
     button.style.opacity = '.72';
+    try { clearCart(); } catch (_) {}
+  };
+  // Reloading the receipt must never create a second order.
+  if (!localStorage.getItem('emPoissonnerieOrder')) {
+    let receipt;
+    try { receipt = JSON.parse(localStorage.getItem('emPoissonnerieFinalOrder') || 'null'); } catch (_) {}
+    if (receipt && receipt.order_id) {
+      showSuccess(receipt.order_id);
+      return;
+    }
   };
   if (requestState.orderId) showSuccess(requestState.orderId);
   button.onclick = async () => {
