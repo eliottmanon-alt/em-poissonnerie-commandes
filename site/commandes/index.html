@@ -654,6 +654,15 @@ document.getElementById('continueBtn').onclick=()=>{
   window.location.href='informations.html';
 };
 
+// Clear a receipt left in the active cart by the previous deployed version.
+try {
+  const submitted = JSON.parse(localStorage.getItem('emPoissonnerieSubmission') || 'null');
+  const activeOrder = JSON.parse(localStorage.getItem('emPoissonnerieOrder') || 'null');
+  const activeCustomer = JSON.parse(localStorage.getItem('emPoissonnerieCustomer') || 'null');
+  if (submitted?.orderId && submitted.fingerprint === JSON.stringify({order:activeOrder, customer:activeCustomer})) {
+    ['emPoissonnerieOrder','emPoissonnerieCustomer','emPoissonnerieCheckout','emPoissonnerieSubmission'].forEach(key => localStorage.removeItem(key));
+  }
+} catch (_) {}
 const savedOrder = localStorage.getItem('emPoissonnerieOrder');
 if(savedOrder){
   try{
