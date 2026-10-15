@@ -1,0 +1,215 @@
+{
+  "products": [
+    {
+      "name": "Crevettes Équateur",
+      "unit": "5 pcs",
+      "price": 2.5,
+      "key": "crevettes_eq",
+      "cat": "crustaces",
+      "tags": [],
+      "per_person": true
+    },
+    {
+      "name": "Crevettes Madagascar",
+      "unit": "5 pcs",
+      "price": 4.0,
+      "key": "crevettes_mad",
+      "cat": "crustaces",
+      "tags": [
+        {
+          "text": "Label Rouge",
+          "type": "label"
+        }
+      ],
+      "per_person": true
+    },
+    {
+      "name": "Crevettes grises",
+      "unit": "100 g",
+      "price": 3.9,
+      "key": "crevettes_grises",
+      "cat": "crustaces",
+      "tags": [
+        {
+          "text": "Pêche française",
+          "type": "text"
+        }
+      ],
+      "per_person": true
+    },
+    {
+      "name": "Gambas",
+      "unit": "1 pc",
+      "price": 7.0,
+      "key": "gambas",
+      "cat": "crustaces",
+      "tags": [],
+      "per_person": true
+    },
+    {
+      "name": "Bulots cuits",
+      "unit": "10 pcs",
+      "price": 2.0,
+      "key": "bulots",
+      "cat": "coquillages",
+      "tags": [
+        {
+          "text": "Cuisson maison",
+          "type": "house"
+        }
+      ],
+      "per_person": true
+    },
+    {
+      "name": "Bigorneaux cuits",
+      "unit": "100 g",
+      "price": 2.5,
+      "key": "bigorneaux",
+      "cat": "coquillages",
+      "tags": [
+        {
+          "text": "Cuisson maison",
+          "type": "house"
+        }
+      ],
+      "per_person": true
+    },
+    {
+      "name": "Pinces de tourteaux",
+      "unit": "2 pcs",
+      "price": 8.0,
+      "key": "pinces_tourteaux",
+      "cat": "crustaces",
+      "tags": [],
+      "per_person": true
+    },
+    {
+      "name": "Langoustines cuites",
+      "unit": "5 pcs",
+      "price": 4.0,
+      "key": "langoustines",
+      "cat": "crustaces",
+      "tags": [
+        {
+          "text": "Cuisson maison",
+          "type": "house"
+        }
+      ],
+      "per_person": true
+    },
+    {
+      "name": "Tourteau cuit",
+      "unit": "½ pièce",
+      "price": 8.0,
+      "key": "tourteau",
+      "cat": "crustaces",
+      "tags": [],
+      "per_person": true
+    },
+    {
+      "name": "Palourdes",
+      "unit": "6 pcs",
+      "price": 2.0,
+      "key": "palourdes",
+      "cat": "coquillages",
+      "tags": [],
+      "per_person": true
+    },
+    {
+      "name": "Huîtres",
+      "unit": "6 pcs",
+      "price": 4.0,
+      "key": "huitres",
+      "cat": "coquillages",
+      "tags": [],
+      "per_person": true
+    },
+    {
+      "name": "Gravlax",
+      "unit": "2 tranches",
+      "price": 6.0,
+      "key": "gravlax",
+      "cat": "fume",
+      "tags": [
+        {
+          "text": "Label Rouge",
+          "type": "label"
+        },
+        {
+          "text": "Fait maison",
+          "type": "house"
+        }
+      ],
+      "per_person": true
+    },
+    {
+      "name": "Saumon fumé",
+      "unit": "1 tranche",
+      "price": 6.0,
+      "key": "saumon_fume",
+      "cat": "fume",
+      "tags": [
+        {
+          "text": "Label Rouge",
+          "type": "label"
+        },
+        {
+          "text": "Fait maison",
+          "type": "house"
+        }
+      ],
+      "per_person": true
+    },
+    {
+      "name": "Mayo citron",
+      "unit": "1 pot",
+      "price": 3.9,
+      "key": "mayo_citron",
+      "cat": "sauces",
+      "tags": [
+        {
+          "text": "Fait maison",
+          "type": "house"
+        }
+      ],
+      "per_person": false
+    },
+    {
+      "name": "Mayo salicorne",
+      "unit": "1 pot",
+      "price": 3.9,
+      "key": "mayo_salicorne",
+      "cat": "sauces",
+      "tags": [
+        {
+          "text": "Fait maison",
+          "type": "house"
+        }
+      ],
+      "per_person": false
+    },
+    {
+      "name": "Aïoli",
+      "unit": "1 pot",
+      "price": 3.9,
+      "key": "aioli",
+      "cat": "sauces",
+      "tags": [
+        {
+          "text": "Fait maison",
+          "type": "house"
+        }
+      ],
+      "per_person": false
+    },
+    {
+      "name": "Jean Dellac Sauvignon",
+      "unit": "1 bouteille",
+      "price": 7.9,
+      "key": "vin",
+      "cat": "extras",
+      "tags": [],
+      "per_person": false
+    }
+  ]
+}
