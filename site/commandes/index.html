@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+<head>
+<meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>EM Poissonnerie — Commande | Étape 1</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;500;600&amp;family=Poiret+One&amp;display=swap" rel="stylesheet"/>
+<style>
+:root{--ink:#143746;--ink2:#0e2e3b;--blue:#2f819d;--cream:#f6f2eb;--line:#dfe6e8;--muted:#6a7b82;--white:#fff;--max:1450px}
+*{box-sizing:border-box} html{scroll-behavior:smooth}
+body{margin:0;font-family:"Segoe UI",Arial,sans-serif;color:var(--ink);font-size:18px;background:#fff;position:relative}
+body:before{content:"EM";position:fixed;left:50%;bottom:4%;transform:translateX(-50%);font-family:Baskerville,Georgia,serif;font-size:min(48vw,600px);color:rgba(20,55,70,.03);z-index:0;pointer-events:none}
+a{color:inherit;text-decoration:none} img{display:block;max-width:100%} button,input{font:inherit}
+.topbar,header,.site-hero,.module-menu,.panel,footer{position:relative;z-index:1}
+.topbar{background:var(--ink2);color:#fff;text-align:center;padding:13px 18px;font-size:13px;letter-spacing:.08em}
+header{background:rgba(255,255,255,.98);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:50}
+.header-inner{max-width:var(--max);margin:auto;display:grid;grid-template-columns:170px 1fr 195px;min-height:138px}
+.logo{display:flex;align-items:center;padding:8px 12px}.logo img{width:132px;height:132px;object-fit:contain}
+nav{display:grid;grid-template-columns:1.02fr 1.05fr .93fr}
+.nav-item{border-left:1px solid var(--line);padding:22px 30px;display:flex;flex-direction:column;justify-content:center}
+.nav-item.active{background:#f4f8f9}.nav-title{font-family:Baskerville,Georgia,serif;font-size:27px;line-height:1.04}.nav-sub{font-size:12px;color:var(--muted);margin-top:7px}
+.contact{display:flex;align-items:center;justify-content:flex-end;padding:0 14px 0 20px;border-left:1px solid var(--line)}.contact a{border:1px solid var(--ink);padding:13px 18px;border-radius:999px;font-size:13px}
+
+.site-hero{height:560px;overflow:hidden}.site-hero img{width:100%;height:100%;object-fit:cover}.site-hero:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(9,39,52,.82),rgba(9,39,52,.20) 63%,rgba(9,39,52,.02))}
+.site-copy{position:absolute;z-index:2;left:max(34px,calc((100vw - 1450px)/2 + 34px));top:50%;transform:translateY(-50%);max-width:690px;color:#fff}
+.kicker,.eyebrow{font-size:12px;letter-spacing:.22em;text-transform:uppercase}.kicker{margin-bottom:18px}.eyebrow{color:var(--blue);margin-bottom:14px}
+h1,h2,h3{font-family:Baskerville,"Palatino Linotype",Georgia,serif;font-weight:400}
+.site-copy h1{font-size:72px;line-height:.96;margin:0}.site-copy p{font-size:19px;line-height:1.72;color:#edf4f5;max-width:610px}
+
+.module-menu{background:#fff;border-bottom:1px solid var(--line)}.module-inner{max-width:var(--max);margin:auto;padding:30px 34px 36px}
+.module-title{font-family:Baskerville,Georgia,serif;font-size:35px;margin-bottom:18px}.module-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+.module-card{border:1px solid var(--line);background:#fff;cursor:pointer;overflow:hidden;transition:.2s}.module-card:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(20,55,70,.08)}.module-card.active{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.module-card img{width:100%;height:155px;object-fit:cover}.module-copy{padding:18px}.module-copy span{font-size:11px;color:var(--blue);letter-spacing:.12em;text-transform:uppercase}.module-copy h3{font-size:29px;margin:5px 0 8px}.module-copy p{font-size:12px;color:var(--muted);line-height:1.55;margin:0}
+
+.panel{display:none}.panel.active{display:block}.section{padding:90px 34px}.wrap{max-width:var(--max);margin:auto}
+.plateau-banner{height:555px;position:relative;overflow:hidden;background:#dce4e6}.plateau-banner img{width:100%;height:100%;object-fit:cover;object-position:center center}.plateau-banner:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(8,35,47,.72),rgba(8,35,47,.08) 70%)}
+.plateau-banner-copy{position:absolute;z-index:2;left:max(34px,calc((100vw - 1450px)/2 + 34px));top:50%;transform:translateY(-50%);color:#fff;max-width:640px}.plateau-banner-copy h2{font-size:58px;margin:0 0 10px}.plateau-banner-copy p{font-size:16px;line-height:1.6}
+.builder{background:var(--cream)}.builder-top{display:grid;grid-template-columns:1fr auto;gap:36px;align-items:end;margin-bottom:28px}.builder-top h2{font-size:55px;line-height:1.02;margin:0}.builder-top p{color:var(--muted);line-height:1.7;max-width:760px;margin:16px 0 0;font-size:16px}
+.guest-box{background:#fff;border:1px solid #e6dfd4;padding:16px 19px;display:flex;align-items:center;gap:16px;min-width:290px}.guest-box span{font-size:13px;color:var(--muted)}.guest-box input{width:76px;border:0;border-bottom:2px solid var(--ink);font-size:29px;text-align:center;color:var(--ink);background:transparent}
+.info-alert{background:#fff;border:1px solid #e2dad0;border-left:5px solid var(--ink);padding:17px 20px;font-size:15px;line-height:1.55;margin-bottom:24px}
+
+.toolbar{display:flex;justify-content:space-between;gap:22px;align-items:center;margin-bottom:26px;flex-wrap:wrap}.filters{display:flex;gap:10px;flex-wrap:wrap}
+.filter{border:1px solid #d8dfdf;background:#fff;padding:11px 16px;font-size:12px;cursor:pointer;border-radius:999px;color:var(--ink)}.filter.active{background:var(--ink);color:#fff;border-color:var(--ink)}.toolbar-note{font-size:12px;color:var(--muted)}
+
+.shop-layout{display:grid;grid-template-columns:minmax(0,1fr) 420px;gap:34px;align-items:start}.products-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.product-card{background:#fff;border:1px solid #e4dfd7;overflow:hidden;transition:.22s}.product-card:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(20,55,70,.09)}.product-card.hidden{display:none}
+.photo-wrap{height:220px;position:relative;overflow:hidden;background:#dde5e7}.photo-wrap img{width:100%;height:100%;object-fit:cover;background:transparent}.photo-wrap.sauce-photo{background:#f7f8f8}.photo-wrap.sauce-photo img{object-fit:contain;padding:8px;background:transparent}
+.price-chip,.availability-chip{position:absolute;right:11px;top:11px;background:#fff;padding:11px 12px;font-weight:700;box-shadow:0 4px 14px rgba(0,0,0,.08)}
+.price-chip{font-size:24px}.price-chip small{font-size:11px;font-weight:500;display:block;color:var(--muted);margin-top:2px}.availability-chip{font-size:11px;color:var(--ink)}
+.card-body{padding:18px}.title-wrap h3{font-size:26px;margin:0 0 10px;line-height:1.04}
+.tag{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);padding:4px 8px;margin:0 6px 6px 0;border-radius:999px;font-size:10px;background:#fff}.tag img{height:21px;width:auto;object-fit:contain;background:transparent}.text-only{background:#f5f7f7}
+.portion{margin-top:8px;font-size:18px}.portion strong{font-size:22px}.portion span{font-size:12px;color:var(--muted)}
+.card-actions{display:flex;justify-content:space-between;gap:14px;align-items:end;margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}.qty-label{display:block;font-size:11px;color:var(--muted);margin-bottom:7px}
+.qty{display:flex;align-items:center;gap:7px}.qty button{width:46px;height:46px;border:1px solid var(--line);background:#fff;font-size:28px;color:var(--ink);cursor:pointer}.qty input{width:64px;height:46px;border:1px solid var(--line);text-align:center;font-size:22px;font-weight:700;color:var(--ink)}.line-total{font-size:19px;white-space:nowrap}
+.special-action{margin-top:22px;padding-top:16px;border-top:1px solid var(--line)}.ask-btn{width:100%;border:1px solid var(--ink);background:#fff;padding:12px;color:var(--ink);font-size:12px;cursor:pointer}
+
+.cart{position:sticky;top:153px;background:var(--ink2);color:#fff;padding:32px}.cart h3{font-size:39px;margin:0 0 4px}.cart-sub{font-size:12px;color:#bfd0d6;margin-bottom:20px}
+.cart-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}.meta{background:rgba(255,255,255,.07);padding:14px 15px}.meta span{display:block;font-size:10px;color:#b9cbd1}.meta strong{font-family:Baskerville,Georgia,serif;font-size:27px;font-weight:400}
+.per-person-total{margin:12px 0;background:#fff;color:var(--ink);padding:17px 18px}.per-person-total span{font-size:11px;color:var(--muted);display:block}.per-person-total strong{font-family:Baskerville,Georgia,serif;font-size:36px;font-weight:400}
+.cart-items{border-top:1px solid rgba(255,255,255,.14);max-height:290px;overflow:auto}.cart-empty{font-size:13px;color:#bdccd1;padding:18px 0}.cart-item{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.1);font-size:13px}.cart-item small{color:#b8c9cf;display:block;margin-top:3px}
+.total-row{display:flex;justify-content:space-between;align-items:end;padding-top:21px}.total-row span{font-size:13px}.total-row strong{font-family:Baskerville,Georgia,serif;font-size:39px;font-weight:400}
+.progress-wrap{margin:18px 0 8px}.progress-label{display:flex;justify-content:space-between;gap:10px;font-size:11px;color:#d7e3e6}.progress{height:8px;background:rgba(255,255,255,.14);margin-top:9px;overflow:hidden;border-radius:999px}.progress>div{height:100%;width:0;background:#fff;transition:.25s}
+.gift{font-size:12px;color:#d8e5e8;line-height:1.55;margin:10px 0 20px}.continue{width:100%;border:0;background:#fff;color:var(--ink);padding:17px;font-size:12px;letter-spacing:.06em;cursor:pointer}.included{font-size:11px;color:#c5d4d9;margin-top:14px;line-height:1.6}
+
+.special-section{margin-top:65px}.special-section h2{font-size:46px;margin:0 0 8px}.special-section>p{color:var(--muted);font-size:15px;line-height:1.7;max-width:720px}.special-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-top:26px}
+
+.simple-panel{background:#fff}.simple-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:52px;align-items:center}.simple-grid img{width:100%;height:520px;object-fit:cover}.simple-grid h2{font-size:55px;margin:0}.simple-grid p{color:var(--muted);line-height:1.8;font-size:16px}.placeholder-box{margin-top:24px;padding:22px;border:1px dashed #bcc8cb;background:#fafcfc;font-size:14px;line-height:1.65}.catalog-tags{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}.catalog-tags span{padding:10px 13px;border:1px solid var(--line);font-size:12px;background:#fff}
+
+footer{background:var(--ink2);color:#d7e3e6;padding:52px 34px}.footer-inner{max-width:var(--max);margin:auto;display:flex;justify-content:space-between;align-items:end;gap:34px}footer img{width:105px;background:#fff;border-radius:50%}footer p{font-size:12px;line-height:1.7}.footer-links{display:flex;gap:18px;flex-wrap:wrap;font-size:11px;justify-content:flex-end}
+
+@media(max-width:1180px){.products-grid,.special-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.shop-layout{grid-template-columns:minmax(0,1fr) 360px}}
+@media(max-width:960px){body{font-size:16px}.header-inner{grid-template-columns:125px 1fr}.contact{display:none}.logo img{width:105px;height:105px}.nav-title{font-size:21px}.nav-sub{display:none}.module-grid,.shop-layout,.simple-grid{grid-template-columns:1fr}.cart{position:relative;top:0}}
+@media(max-width:650px){header{position:relative}.header-inner{display:block;min-height:auto}.logo{justify-content:center;border-bottom:1px solid var(--line)}nav{grid-template-columns:1fr}.nav-item{border-left:0;border-bottom:1px solid var(--line);padding:12px 20px}.site-hero{height:560px}.site-copy{left:22px;right:22px}.site-copy h1{font-size:48px}.module-inner,.section{padding-left:20px;padding-right:20px}.module-grid,.products-grid,.special-grid{grid-template-columns:1fr}.builder-top{grid-template-columns:1fr}.builder-top h2{font-size:42px}.plateau-banner{height:440px}.plateau-banner-copy{left:22px;right:22px}.plateau-banner-copy h2{font-size:42px}.photo-wrap{height:240px}.simple-grid img{height:380px}.footer-inner{display:block}.footer-links{justify-content:flex-start;margin-top:28px}}
+
+.included-strip{
+  background:#fff;border:1px solid #e2dad0;border-left:5px solid var(--ink);
+  padding:15px 20px;margin-bottom:24px;display:flex;align-items:center;gap:10px;
+  flex-wrap:wrap;font-size:15px;line-height:1.4
+}
+.included-item{display:inline-flex;align-items:center;gap:7px;font-weight:600}
+.included-sep{color:#b9a36b}
+.included-picto{width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center}
+.included-picto svg{width:100%;height:100%;fill:none;stroke:var(--ink);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.lemon-picto svg{fill:#f2d85e;stroke:#a99737}
+.wipe-picto svg{fill:#f5fbfc}
+.picks-picto svg{stroke:#b99354;stroke-width:2.4}
+
+.photo-wrap.wine-photo{background:linear-gradient(180deg,#f8faf9,#edf2f2)}
+.photo-wrap.wine-photo img{object-fit:contain;padding:10px 22px}
+
+.gift-reward{
+  margin:12px 0 18px;min-height:0;display:grid;grid-template-columns:72px 1fr;
+  align-items:center;gap:14px;padding:0;opacity:0;max-height:0;overflow:hidden;
+  transform:translateY(8px) scale(.96);transition:opacity .28s ease,max-height .36s ease,padding .36s ease,transform .36s ease;
+  border:1px solid transparent;border-radius:12px
+}
+.gift-reward.unlocked{
+  opacity:1;max-height:150px;padding:12px 14px;transform:translateY(0) scale(1);
+  border-color:rgba(255,255,255,.22);background:rgba(255,255,255,.08);
+  animation:rewardGlow 1.25s ease both
+}
+.gift-bottle-wrap{height:105px;display:flex;align-items:center;justify-content:center;position:relative}
+.gift-bottle{max-height:102px;width:auto;filter:drop-shadow(0 8px 12px rgba(0,0,0,.2))}
+.gift-reward.unlocked .gift-bottle{animation:bottlePop .72s cubic-bezier(.18,.9,.28,1.25) both}
+.gift-sparkle{position:absolute;color:#f3d891;font-size:18px;opacity:0}
+.gift-reward.unlocked .sparkle-a{left:2px;top:8px;animation:sparkle 1.2s .25s ease both}
+.gift-reward.unlocked .sparkle-b{right:0;top:25px;animation:sparkle 1.2s .45s ease both}
+.gift-reward.unlocked .sparkle-c{left:8px;bottom:12px;animation:sparkle 1.2s .6s ease both}
+.gift-reward strong{display:block;font-family:Baskerville,Georgia,serif;font-size:22px;font-weight:400;margin-bottom:3px}
+.gift-reward span{font-size:11px;color:#d7e3e6;line-height:1.45}
+@keyframes bottlePop{
+  0%{opacity:0;transform:translateY(22px) scale(.62) rotate(-4deg)}
+  65%{opacity:1;transform:translateY(-4px) scale(1.08) rotate(1deg)}
+  100%{opacity:1;transform:translateY(0) scale(1) rotate(0)}
+}
+@keyframes sparkle{
+  0%{opacity:0;transform:scale(.3) rotate(0)}
+  45%{opacity:1;transform:scale(1.25) rotate(22deg)}
+  100%{opacity:0;transform:scale(.8) rotate(45deg)}
+}
+@keyframes rewardGlow{
+  0%{box-shadow:0 0 0 rgba(242,216,145,0)}
+  45%{box-shadow:0 0 25px rgba(242,216,145,.28)}
+  100%{box-shadow:0 0 0 rgba(242,216,145,0)}
+}
+@media(max-width:650px){
+  .included-strip{gap:8px}
+  .included-item{font-size:13px}
+  .included-picto{width:24px;height:24px}
+}
+
+
+.zoomed-out-banner{height:520px;background:#132f3a;position:relative;isolation:isolate}
+.zoomed-out-banner .banner-bg{
+  position:absolute;inset:-24px;background-size:cover;background-position:center;
+  filter:blur(16px) brightness(.58) saturate(.92);transform:scale(1.05);z-index:0
+}
+.zoomed-out-banner .banner-full{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:contain!important;
+  object-position:center center!important;z-index:1;
+  filter:drop-shadow(0 10px 24px rgba(0,0,0,.16))
+}
+.zoomed-out-banner:after{
+  content:"";position:absolute;inset:0;z-index:2;
+  background:linear-gradient(90deg,rgba(8,35,47,.79) 0%,rgba(8,35,47,.36) 30%,rgba(8,35,47,.05) 58%,rgba(8,35,47,.12) 100%)
+}
+.zoomed-out-banner .plateau-banner-copy{z-index:3}
+@media(max-width:650px){
+  .zoomed-out-banner{height:410px}
+  .zoomed-out-banner .banner-full{object-fit:contain!important}
+}
+
+
+/* Duo typographique EM Poissonnerie */
+body, p, span, a, button, input, select, textarea, label, .nav-sub, .kicker, .eyebrow {font-family:"Josefin Sans", sans-serif;font-weight:300;}
+h1,h2,h3,h4,.nav-title,.fact strong,.maison-item strong {font-family:"Poiret One", sans-serif;font-weight:400;}
+</style>
+<link rel="stylesheet" href="../assets/admin/admin.css">
+</head>
+<body>
+<div class="topbar">ELIOTT, MANON &amp; LEUR ÉQUIPE VOUS ACCUEILLENT AUX HALLES DE ROCHEFORT • MARDI, JEUDI &amp; SAMEDI • 7H–14H</div>
+<header><div class="header-inner">
+<a class="logo" href="#"><img alt="EM Poissonnerie" src="../assets/embedded/4fea9353698d0494.png"/></a>
+<nav>
+<a class="nav-item"><span class="nav-title">Notre histoire</span><span class="nav-sub">Le marché &amp; notre approvisionnement</span></a>
+<a class="nav-item"><span class="nav-title">Notre gamme de produits</span><span class="nav-sub">Poissons, coquillages, fumé &amp; traiteur</span></a>
+<a class="nav-item active"><span class="nav-title">Commandes en ligne</span><span class="nav-sub">Plateaux personnalisés &amp; promotions</span></a>
+</nav>
+<div class="contact"><a href="#">Contactez-nous</a></div>
+</div></header>
+
+<section class="module-menu">
+<div class="module-inner">
+<div class="module-title">Commandes en ligne</div>
+<div class="module-grid">
+<article class="module-card active" data-module="plateaux"><img alt="" src="../assets/embedded/fa2c15024513bdbb.jpg"/><div class="module-copy"><span>Module 1</span><h3>Plateaux de fruits de mer à la carte</h3><p>Composez votre plateau produit par produit.</p></div></article>
+<article class="module-card" data-module="promo"><img alt="Photo 88" src="../assets/embedded/854de0917682e99a.jpg"/><div class="module-copy"><span>Module 2</span><h3>Promo</h3><p>Offres ponctuelles, lots et arrivages du moment.</p></div></article>
+
+</div>
+</div>
+</section>
+<section class="panel active" id="plateaux">
+<div class="plateau-banner zoomed-out-banner">
+<div class="banner-bg" style="background-image:url('../assets/embedded/c1f92c92730506ff.jpg')"></div>
+<img alt="Plateau de fruits de mer EM Poissonnerie" class="banner-full" src="../assets/embedded/c1f92c92730506ff.jpg"/>
+<div class="plateau-banner-copy"><div class="kicker">Plateaux de fruits de mer</div><h2>Votre plateau<br/>sur mesure.</h2><p>Composez votre plateau selon vos envies et les arrivages.</p></div>
+</div>
+<div class="section builder">
+<div class="wrap">
+<div class="builder-top">
+<div><div class="eyebrow">Plateau à la carte</div><h2>Composez votre plateau selon vos envies</h2><p>Ajoutez uniquement ce que vous souhaitez. Le nombre de convives sert seulement à calculer le prix moyen par convive dans le récapitulatif.</p></div>
+<label class="guest-box"><span>Nombre de convives</span><input id="guests" max="30" min="1" type="number" value="4"/></label>
+</div>
+<div aria-label="Accessoires inclus avec le plateau" class="included-strip">
+<span class="included-item">Citrons
+    <span aria-hidden="true" class="included-picto lemon-picto">
+<svg viewbox="0 0 32 32"><path d="M9.5 22.5C4.7 17.7 6.2 10.4 12.8 6.7c6.7-3.7 11.7-1.2 13 3.8 1.5 5.7-2.7 12.9-9.5 15-2.8.9-4.8-.1-6.8-3z"></path><path d="M18.6 6.3c1.8-2.6 4.4-3.4 7.4-2.8-1.2 2.8-3.1 4.3-6 4.5"></path></svg>
+</span>
+</span>
+<span class="included-sep">•</span>
+<span class="included-item">Rince-doigts
+    <span aria-hidden="true" class="included-picto wipe-picto">
+<svg viewbox="0 0 32 32"><rect height="18" rx="2.5" width="22" x="5" y="7"></rect><path d="M9 11h14M9 21h14"></path><path d="M12 16c2.2-2 5.8-2 8 0-2.2 2-5.8 2-8 0z"></path></svg>
+</span>
+</span>
+<span class="included-sep">•</span>
+<span class="included-item">Pics en bois
+    <span aria-hidden="true" class="included-picto picks-picto">
+<svg viewbox="0 0 32 32"><path d="M9 27L22 5M14 28L26 8"></path><path d="M21 5l2 4M25 8l2 4"></path></svg>
+</span>
+</span>
+<strong>inclus</strong>
+</div>
+<div class="toolbar">
+<div class="filters">
+<button class="filter active" data-filter="all">Tous les produits</button>
+<button class="filter" data-filter="crustaces">Crustacés</button>
+<button class="filter" data-filter="coquillages">Coquillages</button>
+<button class="filter" data-filter="fume">Saumon &amp; fumé</button>
+<button class="filter" data-filter="sauces">Sauces</button>
+</div>
+<div class="toolbar-note">Prix et quantité indiqués par personne sur les produits concernés. Sauces et vin sont vendus à la pièce.</div>
+</div>
+<div class="shop-layout">
+<div>
+<div class="products-grid">
+<article class="product-card" data-cat="crustaces" data-index="0">
+<div class="photo-wrap">
+<img alt="Crevettes Équateur" src="../assets/embedded/7c3a0d575f46e81a.jpg"/>
+<div class="price-chip">2.50 € <small>/ personne</small></div>
+</div>
+<div class="card-body">
+<div class="title-wrap"><h3>Crevettes Équateur</h3></div>
+<div class="portion"><strong>5 pcs</strong> <span>/ personne</span></div>
+<div class="card-actions">
+<div><span class="qty-label">Quantité</span><div class="qty"><button class="minus">−</button><input min="0" type="number" value="0"/><button class="plus">+</button></div></div>
+<strong class="line-total">0,00 €</strong>
+</div>
+</div>
+</article>
+<article class="product-card" data-cat="crustaces" data-index="1">
+<div class="photo-wrap">
+<img alt="Crevettes Madagascar" src="../assets/embedded/8e55a6e3b8284dfb.jpg"/>
+<div class="price-chip">4.00 € <small>/ personne</small></div>
+</div>
+<div class="card-body">
+<div class="title-wrap"><h3>Crevettes Madagascar</h3><span class="tag"><span>Label Rouge</span><img alt="Crevettes Madagascar" src="../assets/embedded/441494d2e3030e92.jpg"/></span></div>
+<div class="portion"><strong>5 pcs</strong> <span>/ personne</span></div>
+<div class="card-actions">
+<div><span class="qty-label">Quantité</span><div class="qty"><button class="minus">−</button><input min="0" type="number" value="0"/><button class="plus">+</button></div></div>
+<strong class="line-total">0,00 €</strong>
+</div>
+</div>
+</article>
+<article class="product-card" data-cat="crustaces" data-index="2">
+<div class="photo-wrap">
+<img alt="Crevettes grises" src="../assets/embedded/89d630e8c3fb37db.jpg"/>
+<div class="price-chip">3.90 € <small>/ personne</small></div>
+</div>
+<div class="card-body">
+<div class="title-wrap"><h3>Crevettes grises</h3><span class="tag text-only">Pêche française</span></div>
+<div class="portion"><strong>100 g</strong> <span>/ personne</span></div>
+<div class="card-actions">
+<div><span class="qty-label">Quantité</span><div class="qty"><button class="minus">−</button><input min="0" type="number" value="0"/><button class="plus">+</button></div></div>
+<strong class="line-total">0,00 €</strong>
+</div>
+</div>
+</article>
+<article class="product-card" data-cat="crustaces" data-index="3">
+<div class="photo-wrap">
+<img alt="Gambas" src="../assets/embedded/521a2ef6c7df4302.jpg"/>
+<div class="price-chip">7.00 € <small>/ personne</small></div>
+</div>
+<div class="card-body">
+<div class="title-wrap"><h3>Gambas</h3></div>
+<div class="portion"><strong>1 pc</strong> <span>/ personne</span></div>
+<div class="card-actions">
+<div><span class="qty-label">Quantité</span><div class="qty"><button class="minus">−</button><input min="0" type="number" value="0"/><button class="plus">+</button></div></div>
+<strong class="line-total">0,00 €</strong>
+</div>
+</div>
+</article>
+<article class="product-card" data-cat="coquillages" data-index="4">
+<div class="photo-wrap">
+<img alt="Bulots cuits" src="../assets/embedded/e08e9cac21d2c758.jpg"/>
+<div class="price-chip">2.00 € <small>/ personne</small></div>
+</div>
+<div class="card-body">
+<div class="title-wrap"><h3>Bulots cuits</h3><span class="tag"><span>Cuisson maison</span><img alt="Bulots cuits" src="../assets/embedded/c69fc3b6084655ce.jpg"/></span></div>
+<div class="portion"><strong>10 pcs</strong> <span>/ personne</span></div>
+<div class="card-actions">
+<div><span class="qty-label">Quantité</span><div class="qty"><button class="minus">−</button><input min="0" type="number" value="0"/><button class="plus">+</button></div></div>
+<strong class="line-total">0,00 €</strong>
+</div>
+</div>
+</article>
+<article class="product-card" data-cat="coquillages" data-index="5">
+<div class="photo-wrap">
+<img alt="Bigorneaux cuits" src="../assets/embedded/ad9e0d1b43087faf.jpg"/>
+<div class="price-chip">2.50 € <small>/ personne</small></div>
+</div>
+<div class="card-body">
+<div class="title-wrap"><h3>Bigorneaux cuits</h3><span class="tag"><span>Cuisson maison</span><img alt="Bigorneaux cuits" src="../assets/embedded/37a9ff9df63b05e0.jpg"/></span></div>
+<div class="portion"><strong>100 g</strong> <span>/ personne</span></div>
+<div class="card-actions">
+<div><span class="qty-label">Quantité</span><div class="qty"><button class="minus">−</button><input min="0" type="number" value="0"/><button class="plus">+</button></div></div>
+<strong class="line-total">0,00 €</strong>
+</div>
+</div>
+</article>
+<article class="product-card" data-cat="crustaces" data-index="6">
+<div class="photo-wrap">
+<img alt="Pinces de tourteaux" src="../assets/embedded/bac4cb4a5abb800d.jpg"/>
+<div class="price-chip">8.00 € <small>/ personne</small></div>
+</div>
+<div class="card-body">
+<div class="title-wrap"><h3>Pinces de tourteaux</h3></div>
+<div class="portion"><strong>2 pcs</strong> <span>/ personne</span></div>
+<div class="card-actions">
+<div><span class="qty-label">Quantité</span><div class="qty"><button class="minus">−</button><input min="0" type="number" value="0"/><button class="plus">+</button></div></div>
+<strong class="line-total">0,00 €</strong>
+</div>
+</div>
+</article>
+<article class="product-card" data-cat="crustaces" data-index="7">
+<div class="photo-wrap">
+<img alt="Langoustines cuites" src="../assets/embedded/8b1385dc83cfde13.jpg"/>
+<div class="price-chip">4.00 € <small>/ personne</small></div>
+</div>
+<div class="card-body">
+<div class="title-wrap"><h3>Langoustines cuites</h3><span class="tag"><span>Cuisson maison</span><img alt="Fait maison" src="../assets/embedded/3af37171d5de6867.png"/></span></div>
+<div class="portion"><strong>5 pcs</strong> <span>/ personne</span></div>
+<div class="card-actions">
+<div><span class="qty-label">Quantité</span><div class="qty"><button class="minus">−</button><input min="0" type="number" value="0"/><button class="plus">+</button></div></div>
+<strong class="line-total">0,00 €</strong>
+</div>
+</div>
+</article>
+<article class="product-card" data-cat="crustaces" data-index="8">
+<div class="photo-wrap">
+<img alt="Tourteau cuit" src="../assets/embedded/b6f2624091b7182c.jpg"/>
+<div class="price-chip">8.00 € <small>/ personne</small></div>
+</div>
+<div class="card-body">
+<div class="title-wrap"><h3>Tourteau cuit</h3></div>
+<div class="portion"><strong>½ pièce</strong> <span>/ personne</span></div>
+<div class="card-actions">
+<div><span class="qty-label">Quantité</span><div class="qty"><button class="minus">−</button><input min="0" type="number" value="0"/><button class="plus">+</button></div></div>
+<strong class="line-total">0,00 €</strong>
+</div>
+</div>
+</article>
+<article class="product-card" data-cat="coquillages" data-index="9">
+<div class="photo-wrap">
+<img alt="Palourdes" src="../assets/embedded/1b1f9abd8801555a.jpg"/>
+<div class="price-chip">2.00 € <small>/ personne</small></div>
+</div>
+<div class="card-body">
+<div class="title-wrap"><h3>Palourdes</h3></div>
+<div class="portion"><strong>6 pcs</strong> <span>/ personne</span></div>
+<div class="card-actions">
+<div><span class="qty-label">Quantité</span><div class="qty"><button class="minus">−</button><input min="0" type="number" value="0"/><button class="plus">+</button></div></div>
+<strong class="line-total">0,00 €</strong>
+</div>
+</div>
+</article>
+<article class="product-card" data-cat="coquillages" data-index="10">
+<div class="photo-wrap">
+<img alt="Huîtres" src="../assets/embedded/6a26cac3e6bad1a7.jpg"/>
+<div class="price-chip">4.00 € <small>/ personne</small></div>
+</div>
+<div class="card-body">
+<div class="title-wrap"><h3>Huîtres</h3></div>
+<div class="portion"><strong>6 pcs</strong> <span>/ personne</span></div>
+<div class="card-actions">
+<div><span class="qty-label">Quantité</span><div class="qty"><button class="minus">−</button><input min="0" type="number" value="0"/><button class="plus">+</button></div></div>
+<strong class="line-total">0,00 €</strong>
+</div>
+</div>
+</article>
+<article class="product-card" data-cat="fume" data-index="11">
+<div class="photo-wrap">
+<img alt="Gravlax" src="../assets/embedded/bfde4fcf1a42974e.jpg"/>
+<div class="price-chip">6.00 € <small>/ personne</small></div>
+</div>
+<div class="card-body">
+<div class="title-wrap"><h3>Gravlax</h3><span class="tag"><span>Label Rouge</span><img alt="Label Rouge" src="../assets/embedded/8c015f663982cc20.png"/></span><span class="tag"><span>Fait maison</span><img alt="Fait maison" src="../assets/embedded/3af37171d5de6867.png"/></span></div>
+<div class="portion"><strong>2 tranches</strong> <span>/ personne</span></div>
+<div class="card-actions">
+<div><span class="qty-label">Quantité</span><div class="qty"><button class="minus">−</button><input min="0" type="number" value="0"/><button class="plus">+</button></div></div>
+<strong class="line-total">0,00 €</strong>
+</div>
+</div>
+</article>
+<article class="product-card" data-cat="fume" data-index="12">
+<div class="photo-wrap">
+<img alt="Saumon fumé" src="../assets/embedded/15327abc759b6652.jpg"/>
+<div class="price-chip">6.00 € <small>/ personne</small></div>
+</div>
+<div class="card-body">
+<div class="title-wrap"><h3>Saumon fumé</h3><span class="tag"><span>Label Rouge</span><img alt="Label Rouge" src="../assets/embedded/8c015f663982cc20.png"/></span><span class="tag"><span>Fait maison</span><img alt="Fait maison" src="../assets/embedded/3af37171d5de6867.png"/></span></div>
+<div class="portion"><strong>1 tranche</strong> <span>/ personne</span></div>
+<div class="card-actions">
+<div><span class="qty-label">Quantité</span><div class="qty"><button class="minus">−</button><input min="0" type="number" value="0"/><button class="plus">+</button></div></div>
+<strong class="line-total">0,00 €</strong>
+</div>
+</div>
+</article>
+<article class="product-card" data-cat="sauces" data-index="13">
+<div class="photo-wrap sauce-photo">
+<img alt="Mayo citron" src="../assets/embedded/13a9d5aacb78d843.png"/>
+<div class="price-chip">3.90 € <small>/ pot</small></div>
+</div>
+<div class="card-body">
+<div class="title-wrap"><h3>Mayo citron</h3><span class="tag"><span>Fait maison</span><img alt="Fait maison" src="../assets/embedded/3af37171d5de6867.png"/></span></div>
+<div class="portion"><strong>1 pot</strong> <span></span></div>
+<div class="card-actions">
+<div><span class="qty-label">Quantité</span><div class="qty"><button class="minus">−</button><input min="0" type="number" value="0"/><button class="plus">+</button></div></div>
+<strong class="line-total">0,00 €</strong>
+</div>
+</div>
+</article>
+<article class="product-card" data-cat="sauces" data-index="14">
+<div class="photo-wrap sauce-photo">
+<img alt="Mayo salicorne" src="../assets/embedded/0c0198487350b832.png"/>
+<div class="price-chip">3.90 € <small>/ pot</small></div>
+</div>
+<div class="card-body">
+<div class="title-wrap"><h3>Mayo salicorne</h3><span class="tag"><span>Fait maison</span><img alt="Fait maison" src="../assets/embedded/3af37171d5de6867.png"/></span></div>
+<div class="portion"><strong>1 pot</strong> <span></span></div>
+<div class="card-actions">
+<div><span class="qty-label">Quantité</span><div class="qty"><button class="minus">−</button><input min="0" type="number" value="0"/><button class="plus">+</button></div></div>
+<strong class="line-total">0,00 €</strong>
+</div>
+</div>
+</article>
+<article class="product-card" data-cat="sauces" data-index="15">
+<div class="photo-wrap sauce-photo">
+<img alt="Aïoli" src="../assets/embedded/f9cd24d404685db1.png"/>
+<div class="price-chip">3.90 € <small>/ pot</small></div>
+</div>
+<div class="card-body">
+<div class="title-wrap"><h3>Aïoli</h3><span class="tag"><span>Fait maison</span><img alt="Fait maison" src="../assets/embedded/3af37171d5de6867.png"/></span></div>
+<div class="portion"><strong>1 pot</strong> <span></span></div>
+<div class="card-actions">
+<div><span class="qty-label">Quantité</span><div class="qty"><button class="minus">−</button><input min="0" type="number" value="0"/><button class="plus">+</button></div></div>
+<strong class="line-total">0,00 €</strong>
+</div>
+</div>
+</article>
+<article class="product-card" data-cat="extras" data-index="16">
+<div class="photo-wrap wine-photo">
+<img alt="Jean Dellac Sauvignon" src="../assets/embedded/8fd2f6a0219017b7.png"/>
+<div class="price-chip">7.90 € <small>/ bouteille</small></div>
+</div>
+<div class="card-body">
+<div class="title-wrap"><h3>Jean Dellac Sauvignon</h3></div>
+<div class="portion"><strong>1 bouteille</strong></div>
+<div class="card-actions">
+<div><span class="qty-label">Quantité</span><div class="qty"><button class="minus">−</button><input min="0" type="number" value="0"/><button class="plus">+</button></div></div>
+<strong class="line-total">0,00 €</strong>
+</div>
+</div>
+</article>
+</div>
+<div class="special-section">
+<div class="eyebrow">Selon saison &amp; approvisionnement</div>
+<h2>Pièces spéciales</h2>
+<p>Les pièces spéciales gardent maintenant exactement le même principe de vignette que les autres produits.</p>
+<div class="special-grid">
+<article class="product-card special-product">
+<div class="photo-wrap">
+<img alt="Araignée cuite ½" src="../assets/embedded/ce58c1dd3f050de1.jpg"/>
+<div class="availability-chip">Selon arrivage</div>
+</div>
+<div class="card-body">
+<div class="title-wrap"><h3>Araignée cuite ½</h3></div>
+<div class="portion"><span>Selon saison &amp; approvisionnement</span></div>
+<div class="special-action"><button class="ask-btn" type="button">Ajouter à la demande</button></div>
+</div>
+</article>
+<article class="product-card special-product">
+<div class="photo-wrap">
+<img alt="Homard cuit ½" src="../assets/embedded/ad01d221ac7c54d2.jpg"/>
+<div class="availability-chip">Selon arrivage</div>
+</div>
+<div class="card-body">
+<div class="title-wrap"><h3>Homard cuit ½</h3></div>
+<div class="portion"><span>Selon approvisionnement</span></div>
+<div class="special-action"><button class="ask-btn" type="button">Ajouter à la demande</button></div>
+</div>
+</article>
+<article class="product-card special-product">
+<div class="photo-wrap">
+<img alt="Langouste cuite ½" src="../assets/embedded/76175c22db92a7db.jpg"/>
+<div class="availability-chip">Selon arrivage</div>
+</div>
+<div class="card-body">
+<div class="title-wrap"><h3>Langouste cuite ½</h3></div>
+<div class="portion"><span>Selon approvisionnement</span></div>
+<div class="special-action"><button class="ask-btn" type="button">Ajouter à la demande</button></div>
+</div>
+</article></div>
+</div>
+</div>
+<aside class="cart">
+<h3>Votre récapitulatif</h3>
+<div class="cart-sub">Le total correspond uniquement à votre sélection.</div>
+<div class="cart-meta">
+<div class="meta"><span>Convives</span><strong id="guestSummary">4</strong></div>
+<div class="meta"><span>Articles ajoutés</span><strong id="itemCount">0</strong></div>
+</div>
+<div class="per-person-total"><span>Prix moyen par convive</span><strong id="perPersonTotal">0,00 €</strong></div>
+<div class="cart-items" id="cartItems"><div class="cart-empty">Votre sélection apparaîtra ici.</div></div>
+<div class="total-row"><span>Coût total du plateau</span><strong id="grandTotal">0,00 €</strong></div>
+<div class="progress-wrap">
+<div class="progress-label"><span>Objectif bouteille offerte : 80 €</span><strong id="progressValue">0 %</strong></div>
+<div class="progress"><div id="giftProgress"></div></div>
+</div>
+<div class="gift" id="giftBox">Encore 80,00 € pour profiter de la bouteille offerte.</div>
+<div aria-live="polite" class="gift-reward" id="giftReward">
+<div class="gift-bottle-wrap">
+<span class="gift-sparkle sparkle-a">✦</span>
+<span class="gift-sparkle sparkle-b">✦</span>
+<span class="gift-sparkle sparkle-c">✦</span>
+<img alt="Bouteille Jean Dellac Sauvignon offerte" class="gift-bottle" src="../assets/embedded/8fd2f6a0219017b7.png"/>
+</div>
+<div>
+<strong>Bouteille débloquée !</strong>
+<span>Votre Jean Dellac Sauvignon est offert avec ce plateau.</span>
+</div>
+</div>
+<button class="continue" id="continueBtn" type="button">Continuer vers mes informations</button>
+<div class="included">Étape suivante : coordonnées du client, date et heure de retrait.</div>
+</aside>
+</div>
+</div>
+</div>
+</section>
+<section class="panel" id="promo">
+<div class="section simple-panel"><div class="wrap simple-grid">
+<img alt="Photo 88 - vignette promo" src="../assets/embedded/854de0917682e99a.jpg"/>
+<div><div class="eyebrow">Module 2 — Promo</div><h2>Les offres du moment.</h2><p>La vignette du module Promo utilise maintenant la photo 88.</p><div class="placeholder-box">Ici on pourra afficher : photo réelle, nom de l’offre, prix promo, quantité disponible, date limite et bouton « Commander ».</div></div>
+</div></div>
+</section>
+
+<footer><div class="footer-inner"><div><img alt="EM Poissonnerie" src="../assets/embedded/4fea9353698d0494.png"/><p>EM Poissonnerie<br/>Halles de Rochefort</p></div><div class="footer-links"><span>Notre histoire</span><span>Notre gamme</span><span>Commandes en ligne</span><span>Contact</span><span>Avis Google</span></div></div></footer>
+<script>
+const products=[{"name": "Crevettes Équateur", "unit": "5 pcs", "price": 2.5, "key": "crevettes_eq", "cat": "crustaces", "tags": [], "per_person": true}, {"name": "Crevettes Madagascar", "unit": "5 pcs", "price": 4.0, "key": "crevettes_mad", "cat": "crustaces", "tags": [{"text": "Label Rouge", "type": "label"}], "per_person": true}, {"name": "Crevettes grises", "unit": "100 g", "price": 3.9, "key": "crevettes_grises", "cat": "crustaces", "tags": [{"text": "Pêche française", "type": "text"}], "per_person": true}, {"name": "Gambas", "unit": "1 pc", "price": 7.0, "key": "gambas", "cat": "crustaces", "tags": [], "per_person": true}, {"name": "Bulots cuits", "unit": "10 pcs", "price": 2.0, "key": "bulots", "cat": "coquillages", "tags": [{"text": "Cuisson maison", "type": "house"}], "per_person": true}, {"name": "Bigorneaux cuits", "unit": "100 g", "price": 2.5, "key": "bigorneaux", "cat": "coquillages", "tags": [{"text": "Cuisson maison", "type": "house"}], "per_person": true}, {"name": "Pinces de tourteaux", "unit": "2 pcs", "price": 8.0, "key": "pinces_tourteaux", "cat": "crustaces", "tags": [], "per_person": true}, {"name": "Langoustines cuites", "unit": "5 pcs", "price": 4.0, "key": "langoustines", "cat": "crustaces", "tags": [{"text": "Cuisson maison", "type": "house"}], "per_person": true}, {"name": "Tourteau cuit", "unit": "½ pièce", "price": 8.0, "key": "tourteau", "cat": "crustaces", "tags": [], "per_person": true}, {"name": "Palourdes", "unit": "6 pcs", "price": 2.0, "key": "palourdes", "cat": "coquillages", "tags": [], "per_person": true}, {"name": "Huîtres", "unit": "6 pcs", "price": 4.0, "key": "huitres", "cat": "coquillages", "tags": [], "per_person": true}, {"name": "Gravlax", "unit": "2 tranches", "price": 6.0, "key": "gravlax", "cat": "fume", "tags": [{"text": "Label Rouge", "type": "label"}, {"text": "Fait maison", "type": "house"}], "per_person": true}, {"name": "Saumon fumé", "unit": "1 tranche", "price": 6.0, "key": "saumon_fume", "cat": "fume", "tags": [{"text": "Label Rouge", "type": "label"}, {"text": "Fait maison", "type": "house"}], "per_person": true}, {"name": "Mayo citron", "unit": "1 pot", "price": 3.9, "key": "mayo_citron", "cat": "sauces", "tags": [{"text": "Fait maison", "type": "house"}], "per_person": false}, {"name": "Mayo salicorne", "unit": "1 pot", "price": 3.9, "key": "mayo_salicorne", "cat": "sauces", "tags": [{"text": "Fait maison", "type": "house"}], "per_person": false}, {"name": "Aïoli", "unit": "1 pot", "price": 3.9, "key": "aioli", "cat": "sauces", "tags": [{"text": "Fait maison", "type": "house"}], "per_person": false}, {"name": "Jean Dellac Sauvignon", "unit": "1 bouteille", "price": 7.9, "key": "vin", "cat": "extras", "tags": [], "per_person": false}];
+const rows=[...document.querySelectorAll('.product-card[data-index]')];
+const guests=document.getElementById('guests');
+function money(v){return v.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' €'}
+
+function updateCart(){
+ let total=0,count=0,selected=[];
+ rows.forEach((card,i)=>{
+   const input=card.querySelector('input');
+   let q=parseInt(input.value||'0',10); if(isNaN(q)||q<0)q=0; input.value=q;
+   const line=q*products[i].price; total+=line; count+=q;
+   card.querySelector('.line-total').textContent=money(line);
+   if(q>0)selected.push({name:products[i].name,q,unit:products[i].unit,line});
+ });
+ const g=Math.max(1,parseInt(guests.value||'1',10));
+ const avg=total/g;
+ document.getElementById('guestSummary').textContent=g;
+ document.getElementById('itemCount').textContent=count;
+ document.getElementById('perPersonTotal').textContent=money(avg);
+ document.getElementById('grandTotal').textContent=money(total);
+
+ const pct=Math.min(100,Math.round(total/80*100));
+ document.getElementById('progressValue').textContent=pct+' %';
+ document.getElementById('giftProgress').style.width=pct+'%';
+ const giftReached = total >= 80;
+ document.getElementById('giftBox').textContent=giftReached
+   ? 'Bouteille offerte : le seuil de 80 € est atteint.'
+   : 'Encore '+money(80-total)+' pour profiter de la bouteille offerte.';
+ const giftReward=document.getElementById('giftReward');
+ if(giftReward){
+   const wasUnlocked=giftReward.classList.contains('unlocked');
+   giftReward.classList.toggle('unlocked',giftReached);
+   if(giftReached && !wasUnlocked){
+     giftReward.classList.remove('unlocked');
+     void giftReward.offsetWidth;
+     giftReward.classList.add('unlocked');
+   }
+ }
+
+ const box=document.getElementById('cartItems');
+ box.innerHTML=selected.length
+   ? selected.map(x=>`<div class="cart-item"><div>${x.name}<small>${x.q} × ${x.unit}</small></div><strong>${money(x.line)}</strong></div>`).join('')
+   : '<div class="cart-empty">Votre sélection apparaîtra ici.</div>';
+}
+
+rows.forEach(card=>{
+ const input=card.querySelector('input');
+ card.querySelector('.plus').onclick=()=>{input.value=(+input.value||0)+1;updateCart()};
+ card.querySelector('.minus').onclick=()=>{input.value=Math.max(0,(+input.value||0)-1);updateCart()};
+ input.addEventListener('input',updateCart);
+});
+guests.addEventListener('input',updateCart);
+
+document.querySelectorAll('.filter').forEach(btn=>btn.onclick=()=>{
+ document.querySelectorAll('.filter').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
+ const f=btn.dataset.filter;rows.forEach(card=>card.classList.toggle('hidden',f!=='all'&&card.dataset.cat!==f));
+});
+
+document.querySelectorAll('.ask-btn').forEach(btn=>btn.onclick=()=>{
+ const on=!btn.classList.contains('added');
+ btn.classList.toggle('added',on);
+ btn.textContent=on?'✓ Ajouté à la demande':'Ajouter à la demande';
+});
+
+document.querySelectorAll('.module-card').forEach(card=>card.onclick=()=>{
+ document.querySelectorAll('.module-card').forEach(c=>c.classList.remove('active'));card.classList.add('active');
+ document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+ document.getElementById(card.dataset.module).classList.add('active');
+ document.getElementById(card.dataset.module).scrollIntoView({behavior:'smooth',block:'start'});
+});
+
+document.getElementById('continueBtn').onclick=()=>{
+  const selected=[];
+  let total=0;
+  rows.forEach((card,i)=>{
+    const input=card.querySelector('input');
+    const q=Math.max(0,parseInt(input.value||'0',10)||0);
+    if(q>0){
+      const line=q*products[i].price;
+      total+=line;
+      selected.push({
+        name:products[i].name,
+        unit:products[i].unit,
+        price:products[i].price,
+        quantity:q,
+        lineTotal:line
+      });
+    }
+  });
+  const specialRequests=[...document.querySelectorAll('.special-product .ask-btn.added')].map(btn=>btn.closest('.special-product')?.querySelector('h3')?.textContent?.trim()).filter(Boolean);
+  if(!selected.length && !specialRequests.length){
+    alert('Ajoutez au moins un produit ou une pièce spéciale avant de continuer.');
+    return;
+  }
+  const g=Math.max(1,parseInt(guests.value||'1',10)||1);
+  const order={
+    guests:g,
+    items:selected,
+    specialRequests,
+    total:total,
+    average:total/g,
+    giftUnlocked:total>=80,
+    savedAt:new Date().toISOString()
+  };
+  localStorage.setItem('emPoissonnerieOrder',JSON.stringify(order));
+  localStorage.removeItem('emPoissonnerieCheckout');
+  window.location.href='informations.html';
+};
+
+const savedOrder = localStorage.getItem('emPoissonnerieOrder');
+if(savedOrder){
+  try{
+    const restored=JSON.parse(savedOrder);
+    if(restored && Array.isArray(restored.items)){
+      if(restored.guests) guests.value=restored.guests;
+      rows.forEach((card,i)=>{
+        const found=restored.items.find(x=>x.name===products[i].name);
+        if(found) card.querySelector('input').value=found.quantity||0;
+      });
+      if(Array.isArray(restored.specialRequests)){
+        document.querySelectorAll('.special-product').forEach(card=>{
+          const name=card.querySelector('h3')?.textContent?.trim();
+          const btn=card.querySelector('.ask-btn');
+          const on=restored.specialRequests.includes(name);
+          if(btn){btn.classList.toggle('added',on);btn.textContent=on?'✓ Ajouté à la demande':'Ajouter à la demande';}
+        });
+      }
+    }
+  }catch(e){}
+}
+
+updateCart();
+</script>
+<script src="../assets/admin/admin.js"></script>
+</body></html>
