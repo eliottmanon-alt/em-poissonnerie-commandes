@@ -40,3 +40,23 @@ Il ne publie pas encore ses changements pour tous les visiteurs.
 `python app.py` démarre sur http://127.0.0.1:8765.
 Sans DATABASE_URL en local, SQLite est utilisé dans `data/orders.sqlite3`.
 Les tests s'exécutent avec `python -m unittest discover -s tests`.
+
+## Contact et édition Admin — 21 octobre 2026
+
+Modification fondée sur le commit actif Render `3153b20eaf710d09e81c5a9dc48d8049f28b31f2`.
+Le formulaire `/api/contact` utilise Resend côté serveur, indépendamment des commandes.
+Variables Render : `EM_CONTACT_RESEND_KEY` (clé limitée à l’envoi sur le domaine),
+`EM_CONTACT_FROM` (expéditeur vérifié), `EM_CONTACT_TO` (destinataire professionnel).
+Changer le destinataire dans Render, puis redéployer. Ne jamais placer la clé dans les fichiers du site.
+Une réussite est affichée uniquement après acceptation par Resend. Les reprises utilisent
+la même clé d’idempotence ; validation, piège anti-robot et limitation des tentatives sont intégrés.
+La limitation est en mémoire pour le service actuel à un worker ; une mise à l’échelle
+nécessiterait un compteur partagé. Les commandes ne déclenchent toujours aucun e-mail.
+
+Les liens du site sont accessibles depuis les trois étapes de commande.
+La carte fidélité complète est déplaçable et redimensionnable dans l’Admin ; ses réglages
+restent dans le stockage Admin existant et dans les exports/imports. La position de la
+palette est mémorisée séparément dans ce navigateur et reste bornée à l’écran.
+Les modifications Admin restent locales au navigateur, comme auparavant.
+
+Tests : `python -m unittest discover -s tests`.

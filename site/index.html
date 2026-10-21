@@ -207,6 +207,8 @@ h1,h2,h3,h4,.nav-title,.fact strong,.maison-item strong {font-family:"Poiret One
 }
 </script>
 <link rel="stylesheet" href="assets/admin/admin.css">
+<link rel="stylesheet" href="assets/contact.css">
+<script src="assets/contact.js" defer></script>
 </head>
 <body>
 <div class="topbar">ELIOTT, MANON &amp; LEUR ÉQUIPE VOUS ACCUEILLENT AUX HALLES DE ROCHEFORT • MARDI, JEUDI &amp; SAMEDI • 7H–14H</div>
@@ -336,11 +338,29 @@ h1,h2,h3,h4,.nav-title,.fact strong,.maison-item strong {font-family:"Poiret One
 <iframe allowfullscreen="" loading="lazy" src="https://www.google.com/maps?q=Halles%20de%20Rochefort%20France&amp;output=embed"></iframe>
 </div>
 </div>
+
+<div class="wrap contact-form-wrap">
+<form id="emContactForm" class="contact-form" aria-labelledby="emContactTitle">
+<h3 id="emContactTitle">Écrivez-nous.</h3>
+<div class="contact-fields">
+<label id="emContactNameLabel" for="emContactName">Nom<input id="emContactName" name="name" autocomplete="name" maxlength="120" required></label>
+<label id="emContactEmailLabel" for="emContactEmail">E-mail<input id="emContactEmail" name="email" type="email" autocomplete="email" maxlength="254" required></label>
+<label id="emContactPhoneLabel" for="emContactPhone">Téléphone<input id="emContactPhone" name="phone" type="tel" autocomplete="tel" maxlength="40" required></label>
+<label id="emContactSubjectLabel" for="emContactSubject">Objet<input id="emContactSubject" name="subject" maxlength="180" required></label>
+<label id="emContactMessageLabel" class="contact-full" for="emContactMessage">Message<textarea id="emContactMessage" name="message" rows="5" maxlength="6000" required></textarea></label>
+</div>
+<div class="contact-honeypot" aria-hidden="true"><label id="emContactWebsiteLabel" for="emContactWebsite">Laisser ce champ vide<input id="emContactWebsite" name="website" tabindex="-1" autocomplete="off"></label></div>
+<p id="emContactPrivacy" class="contact-note">Vos coordonnées servent uniquement à répondre à votre demande.</p>
+<button id="emContactSubmit" class="contact-submit" type="submit">Envoyer le message</button>
+<p id="emContactStatus" class="contact-status" role="status" aria-live="polite" tabindex="-1" hidden></p>
+<noscript>Activez JavaScript pour envoyer le formulaire, ou écrivez à eliott.manon@empoissonnerie.com.</noscript>
+</form>
+</div>
 </section>
 <footer>
 <div class="footer-inner">
 <div><img alt="EM Poissonnerie" src="assets/embedded/4fea9353698d0494.png"/><p>EM Poissonnerie<br/>Halles de Rochefort</p></div>
-<div class="footer-links"><span>Notre histoire</span><span>Notre gamme</span><span>Commandes en ligne</span><span>Contact</span><span>Avis Google</span></div>
+<div class="footer-links"><a class="footer-link" href="/#histoire"><span>Notre histoire</span></a><a class="footer-link" href="/#gamme"><span>Notre gamme</span></a><a class="footer-link" href="/commandes/index.html"><span>Commandes en ligne</span></a><a class="footer-link" href="/#contact"><span>Contact</span></a><span>Avis Google</span></div>
 </div>
 </footer>
 <script>

@@ -8,3 +8,12 @@ body.em-admin-preview #emAdminPanel,body.em-admin-preview #emAdminOverlay{displa
 @media(max-width:720px){#emAdminPanel{left:8px;right:8px;top:8px;bottom:8px;width:auto}.em-admin-row{grid-template-columns:1fr}}
 
 body.em-admin-on .hero-loyalty-reminder,body.em-admin-on .hero-loyalty-reminder *{pointer-events:auto!important}
+
+/* Editing controls only; existing client-side presentation remains untouched. */
+#emAdminPanel{bottom:auto;height:min(700px,calc(100vh - 28px));max-height:calc(100vh - 16px);width:min(350px,calc(100vw - 16px));max-width:calc(100vw - 16px)}
+.em-admin-head{cursor:grab;touch-action:none;user-select:none;flex-shrink:0;flex-wrap:wrap}.em-admin-head:active{cursor:grabbing}.em-admin-grip{font:11px Arial;letter-spacing:.04em;opacity:.8;width:100%}.em-admin-head strong{flex:1}.em-admin-body{min-height:0}
+body.em-admin-on .hero-loyalty-reminder{cursor:move;touch-action:none;user-select:none}
+#emAdminMove,#emAdminResize,.em-admin-corner{touch-action:none;user-select:none}
+.em-admin-corner{display:none;position:absolute;width:18px;height:18px;border-radius:50%;background:white;border:3px solid #2f819d;pointer-events:auto}
+#emAdminOverlay.em-loyalty-selected .em-admin-corner{display:block}.em-admin-corner-nw{left:-10px;top:-10px;cursor:nwse-resize}.em-admin-corner-ne{right:-10px;top:-10px;cursor:nesw-resize}.em-admin-corner-sw{left:-10px;bottom:-10px;cursor:nesw-resize}
+@media(max-width:720px){#emAdminPanel{right:auto;width:min(350px,calc(100vw - 16px));height:min(700px,calc(100vh - 16px))}}

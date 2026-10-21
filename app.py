@@ -11,6 +11,7 @@ from zoneinfo import ZoneInfo
 
 from flask import Flask, jsonify, request, send_from_directory, redirect
 from storage import Store, StorageUnavailable
+from contact import contact, configured as contact_configured
 
 BASE = Path(__file__).resolve().parent
 SITE = BASE / 'site'
@@ -21,6 +22,7 @@ API_KEY = os.environ.get('EM_SITE_API_KEY', '').strip()
 store = Store()
 app = Flask(__name__, static_folder=None)
 app.config['MAX_CONTENT_LENGTH'] = 512 * 1024
+app.register_blueprint(contact)
 
 
 def now():
@@ -58,7 +60,7 @@ def too_large(error):
 def health():
     return jsonify(ok=True, name='EM Poissonnerie V10.6', orders_configured=not store.disabled,
                    storage='postgres' if store.url else ('unconfigured' if store.disabled else 'local-sqlite'),
-                   email_configured=False)
+                   email_configured=False, contact_email_configured=contact_configured())
 
 
 @app.get('/api/sync/ping')
