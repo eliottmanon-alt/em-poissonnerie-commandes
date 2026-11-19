@@ -4,6 +4,7 @@ import json
 import os
 import re
 import secrets
+import unicodedata
 from datetime import datetime
 from decimal import Decimal
 from pathlib import Path
@@ -159,7 +160,9 @@ def create_order():
         return jsonify(ok=False, error='missing_request_id'), 400
     digest = hashlib.sha256(json.dumps({'order': order, 'customer': customer}, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
     timestamp = now()
-    record = {'id': 'WEB-' + datetime.now(ZoneInfo('Europe/Paris')).strftime('%Y%m%d-%H%M%S') + '-' + secrets.token_hex(4).upper(),
+    client_name = unicodedata.normalize('NFKD', customer['lastName']).encode('ascii', 'ignore').decode().upper()
+    client_name = re.sub(r'[^A-Z0-9]+', '-', client_name).strip('-')[:40] or 'CLIENT'
+    record = {'id': 'WEB-' + datetime.now(ZoneInfo('Europe/Paris')).strftime('%Y%m%d') + '-' + client_name + '-' + secrets.token_hex(4).upper(),
               'created_at': timestamp, 'status': 'new', 'order': order, 'customer': customer,
               'confirmedAt': timestamp, 'status_history': [{'status': 'new', 'at': timestamp}], 'source': 'site-v10.6-test'}
     try:
