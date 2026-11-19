@@ -210,6 +210,15 @@
       "cat": "extras",
       "tags": [],
       "per_person": false
+    },
+    {
+      "name": "Soupe de poissons artisanale",
+      "unit": "1 bocal de 800 ml",
+      "price": 7.9,
+      "key": "soupe_poisson",
+      "cat": "extras",
+      "tags": [],
+      "per_person": false
     }
   ]
 }
