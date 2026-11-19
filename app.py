@@ -11,6 +11,7 @@ from zoneinfo import ZoneInfo
 
 from flask import Flask, jsonify, request, send_from_directory, redirect
 from storage import Store, StorageUnavailable
+import order_mail
 from contact import contact, configured as contact_configured
 
 BASE = Path(__file__).resolve().parent
@@ -60,7 +61,7 @@ def too_large(error):
 def health():
     return jsonify(ok=True, name='EM Poissonnerie V10.6', orders_configured=not store.disabled,
                    storage='postgres' if store.url else ('unconfigured' if store.disabled else 'local-sqlite'),
-                   email_configured=False, contact_email_configured=contact_configured())
+                   email_configured=order_mail.configured(), contact_email_configured=contact_configured())
 
 
 @app.get('/api/sync/ping')
@@ -171,7 +172,8 @@ def create_order():
         # Never put customer data or database credentials into the application log.
         app.logger.error('Order persistence unavailable')
         return jsonify(ok=False, error='storage_unavailable', message='Le serveur ne peut pas enregistrer la commande. Réessayez dans un instant.'), 503
-    return jsonify(ok=True, order_id=saved['id'], status=saved['status'], email_sent=False), (201 if created else 200)
+    email_sent = order_mail.deliver(store, saved, app.logger)
+    return jsonify(ok=True, order_id=saved['id'], status=saved['status'], email_sent=email_sent), (201 if created else 200)
 
 
 @app.get('/api/sync/orders')
@@ -179,6 +181,8 @@ def sync_orders():
     rejected = denied()
     if rejected:
         return rejected
+    for pending in store.pending_mail(limit=1):
+        order_mail.deliver(store, pending, app.logger)
     records = store.orders()
     since = request.args.get('since', '').strip()
     if since:

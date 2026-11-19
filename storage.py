@@ -2,6 +2,7 @@
 import json
 import os
 import sqlite3
+import time
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -30,6 +31,7 @@ class Store:
         try:
             if not self.initialized:
                 db.execute('CREATE TABLE IF NOT EXISTS em_orders (id TEXT PRIMARY KEY, request_id TEXT NOT NULL UNIQUE, request_hash TEXT NOT NULL, payload TEXT NOT NULL)')
+                db.execute('CREATE TABLE IF NOT EXISTS em_order_mail (order_id TEXT NOT NULL, role TEXT NOT NULL, state TEXT NOT NULL, provider_id TEXT, first_attempt DOUBLE PRECISION, PRIMARY KEY(order_id,role))')
                 db.execute('CREATE TABLE IF NOT EXISTS em_settings (name TEXT PRIMARY KEY, payload TEXT NOT NULL)')
                 db.commit()
                 self.initialized = True
@@ -52,6 +54,10 @@ class Store:
             if row[0] != digest:
                 raise ValueError('idempotency_conflict')
             saved = json.loads(row[1])
+            if saved['id'] == record['id']:
+                roles = ['professional'] + (['customer'] if record['customer'].get('email') else [])
+                for role in roles:
+                    self.run(db, 'INSERT INTO em_order_mail (order_id,role,state) VALUES (?,?,?) ON CONFLICT(order_id,role) DO NOTHING', (record['id'], role, 'pending'))
             return saved, saved['id'] == record['id']
 
     def orders(self):
@@ -83,3 +89,8 @@ class Store:
         with self.connect() as db:
             self.run(db, 'INSERT INTO em_settings (name,payload) VALUES (?,?) ON CONFLICT(name) DO UPDATE SET payload=excluded.payload',
                      ('catalog', json.dumps(value, ensure_ascii=False)))
+
+    def pending_mail(self, limit=5):
+        with self.connect() as db:
+            rows = self.run(db, "SELECT DISTINCT o.payload FROM em_orders o JOIN em_order_mail m ON o.id=m.order_id WHERE m.state='pending' AND (m.first_attempt IS NULL OR m.first_attempt > ?) ORDER BY o.payload LIMIT ?", (time.time() - 23 * 3600, limit)).fetchall()
+            return [json.loads(row[0]) for row in rows]
