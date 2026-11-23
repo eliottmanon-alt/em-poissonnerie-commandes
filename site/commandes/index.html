@@ -93,6 +93,12 @@ footer{background:var(--ink2);color:#d7e3e6;padding:52px 34px}.footer-inner{max-
   transform:translateY(8px) scale(.96);transition:opacity .28s ease,max-height .36s ease,padding .36s ease,transform .36s ease;
   border:1px solid transparent;border-radius:12px
 }
+/* Visual ordering preserves the editor's existing element identifiers and saved settings. */
+.cart:has(> #giftReward.unlocked){display:flex;flex-direction:column}
+.cart:has(> #giftReward.unlocked)>h3,.cart:has(> #giftReward.unlocked)>.cart-sub{order:-2}
+.cart:has(> #giftReward.unlocked)>#giftReward{order:-1;margin-top:0}
+.cart:has(> #giftReward.unlocked)>.per-person-total{margin-top:0}
+.cart:has(> #giftReward.unlocked)>.gift{margin-top:2px}
 .gift-reward.unlocked{
   opacity:1;max-height:150px;padding:12px 14px;transform:translateY(0) scale(1);
   border-color:rgba(255,255,255,.22);background:rgba(255,255,255,.08);
@@ -623,12 +629,18 @@ document.querySelectorAll('.ask-btn').forEach(btn=>btn.onclick=()=>{
  btn.textContent=on?'✓ Ajouté à la demande':'Ajouter à la demande';
 });
 
+function openModule(name){
+ if(!['plateaux','promo'].includes(name))return;
+ document.querySelectorAll('.module-card').forEach(card=>card.classList.toggle('active',card.dataset.module===name));
+ document.querySelectorAll('.panel').forEach(panel=>panel.classList.toggle('active',panel.id===name));
+ document.getElementById(name).scrollIntoView({behavior:'smooth',block:'start'});
+}
 document.querySelectorAll('.module-card').forEach(card=>card.onclick=()=>{
- document.querySelectorAll('.module-card').forEach(c=>c.classList.remove('active'));card.classList.add('active');
- document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
- document.getElementById(card.dataset.module).classList.add('active');
- document.getElementById(card.dataset.module).scrollIntoView({behavior:'smooth',block:'start'});
+ history.replaceState(null,'','#'+card.dataset.module);
+ openModule(card.dataset.module);
 });
+window.addEventListener('hashchange',()=>openModule(location.hash.slice(1)));
+openModule(location.hash.slice(1));
 
 document.getElementById('continueBtn').onclick=()=>{
   const selected=[];
