@@ -224,7 +224,15 @@ h1,h2,h3,h4,.nav-title,.fact strong,.maison-item strong {font-family:"Poiret One
 <div class="contact"><a href="#contact">Contactez-nous</a></div>
 </div>
 </header>
-<section class="hero" id="accueil"></section>
+<section class="hero" id="accueil"><div class="hero-slide active" data-i="0">
+<img src="assets/img/21_bateaux_de_peche_port.jpg" alt="Bateaux de pêche au port" style="object-position:center center;filter:contrast(1.12) saturate(1.08) brightness(0.98)">
+<div class="hero-copy"><div class="kicker">Arrivages &amp; port</div><h1>De la mer au banc.</h1><p>Une bannière recentrée sur les bateaux du port pour rappeler nos arrivages, notre fraîcheur et notre lien direct avec la mer.</p><div class="hero-actions"><a class="hero-btn primary" href="commandes/index.html#plateaux">Commander en ligne</a><a class="hero-btn" href="#histoire">Découvrir la maison</a></div></div></div><div class="hero-slide " data-i="1">
+<img src="assets/embedded/ee2aaf34a63caa7f.jpg" alt="">
+<div class="hero-copy"><div class="kicker">Halles de Rochefort</div><h1>Au cœur du marché.</h1><p>Retrouvez Eliott, Manon et leur équipe chaque mardi, jeudi et samedi matin.</p><div class="hero-actions"><a class="hero-btn primary" href="commandes/index.html#plateaux">Commander en ligne</a><a class="hero-btn" href="#histoire">Découvrir la maison</a></div></div></div><div class="hero-slide " data-i="2">
+<img src="assets/embedded/0c97151db01a3353.jpg" alt="">
+<div class="hero-copy"><div class="kicker">Le banc</div><h1>Frais. Généreux.</h1><p>Une sélection qui évolue au rythme des arrivages et des saisons.</p><div class="hero-actions"><a class="hero-btn primary" href="commandes/index.html#plateaux">Commander en ligne</a><a class="hero-btn" href="#histoire">Découvrir la maison</a></div></div></div><div class="hero-slide " data-i="3">
+<img src="assets/embedded/ea78257551e14e47.jpg" alt="">
+<div class="hero-copy"><div class="kicker">Traiteur de la mer</div><h1>Préparé par la maison.</h1><p>Des recettes et préparations pensées pour vous simplifier la cuisine sans perdre le goût du produit.</p><div class="hero-actions"><a class="hero-btn primary" href="commandes/index.html#plateaux">Commander en ligne</a><a class="hero-btn" href="#histoire">Découvrir la maison</a></div></div></div><div class="hero-controls"><button class="arrow" id="prev" aria-label="Précédent">‹</button><div class="dots"><button class="dot active" data-dot="0" aria-label="Slide 1"></button><button class="dot " data-dot="1" aria-label="Slide 2"></button><button class="dot " data-dot="2" aria-label="Slide 3"></button><button class="dot " data-dot="3" aria-label="Slide 4"></button></div><button class="arrow" id="next" aria-label="Suivant">›</button></div><div class="hero-loyalty-reminder" aria-hidden="true"><img class="cards" src="assets/embedded/d055a90aa60df7b2.png" alt=""><img class="bottle" src="assets/embedded/8fd2f6a0219017b7.png" alt=""></div></section>
 <section aria-label="Commande en ligne" class="order-reminder">
 <div class="order-reminder-inner">
 <div class="order-reminder-title"><strong>Commandez en ligne</strong><span>Simple, rapide, retrait aux Halles de Rochefort.</span></div>
@@ -368,31 +376,6 @@ h1,h2,h3,h4,.nav-title,.fact strong,.maison-item strong {font-family:"Poiret One
 const slides = [{"img": "assets/embedded/8b6dc9cdf74bce43.jpg", "kicker": "EM Poissonnerie", "title": "La mer, simplement.", "text": "Des produits frais, choisis avec exigence et préparés avec savoir-faire aux Halles de Rochefort."}, {"img": "assets/embedded/ee2aaf34a63caa7f.jpg", "kicker": "Halles de Rochefort", "title": "Au cœur du marché.", "text": "Retrouvez Eliott, Manon et leur équipe chaque mardi, jeudi et samedi matin."}, {"img": "assets/embedded/0c97151db01a3353.jpg", "kicker": "Le banc", "title": "Frais. Généreux.", "text": "Une sélection qui évolue au rythme des arrivages et des saisons."}, {"img": "assets/embedded/ea78257551e14e47.jpg", "kicker": "Traiteur de la mer", "title": "Préparé par la maison.", "text": "Des recettes et préparations pensées pour vous simplifier la cuisine sans perdre le goût du produit."}];
 const hero = document.querySelector('.hero');
 
-hero.innerHTML = slides.map((s,i)=>`
-  <div class="hero-slide ${i===0?'active':''}" data-i="${i}">
-    <img src="${s.img}" alt="">
-    <div class="hero-copy">
-      <div class="kicker">${s.kicker}</div>
-      <h1>${s.title}</h1>
-      <p>${s.text}</p>
-      <div class="hero-actions">
-        <a class="hero-btn primary" href="commandes/index.html#plateaux">Commander en ligne</a>
-        <a class="hero-btn" href="#histoire">Découvrir la maison</a>
-      </div>
-    </div>
-  </div>
-`).join('') + `
-  <div class="hero-controls">
-    <button class="arrow" id="prev" aria-label="Précédent">‹</button>
-    <div class="dots">${slides.map((_,i)=>`<button class="dot ${i===0?'active':''}" data-dot="${i}" aria-label="Slide ${i+1}"></button>`).join('')}</div>
-    <button class="arrow" id="next" aria-label="Suivant">›</button>
-  </div>
-  <div class="hero-loyalty-reminder" aria-hidden="true">
-    <img class="cards" src="assets/embedded/d055a90aa60df7b2.png" alt="">
-    <img class="bottle" src="assets/embedded/8fd2f6a0219017b7.png" alt="">
-  </div>
-`;
-
 let current = 0;
 let timer = null;
 const slideEls = [...document.querySelectorAll('.hero-slide')];
@@ -446,7 +429,7 @@ document.addEventListener('DOMContentLoaded', function(){
   const heroSlides = Array.from(document.querySelectorAll('.hero-slide'));
   if (heroSlides.length){
     const img = heroSlides[0].querySelector('img');
-    if (img){
+    if (img && !img.dataset.emServerImage){
       img.src = 'assets/img/21_bateaux_de_peche_port.jpg';
       img.alt = 'Bateaux de pêche au port';
       img.style.objectPosition = 'center center';
@@ -500,7 +483,7 @@ document.addEventListener('DOMContentLoaded', function(){
     const img = fig.querySelector('img');
     const caption = fig.querySelector('span');
     if (img){
-      img.src = item.src;
+      if (!img.dataset.emServerImage) img.src = item.src;
       img.alt = item.alt;
       img.loading = 'lazy';
     }

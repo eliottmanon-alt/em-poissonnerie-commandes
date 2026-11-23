@@ -119,6 +119,52 @@ class AdminTest(unittest.TestCase):
         self.assertIn('emAppearanceBootstrap', response.get_data(as_text=True))
         response.close()
 
+    def test_saved_photos_are_in_the_initial_html_without_javascript(self):
+        from html.parser import HTMLParser
+        class Tags(HTMLParser):
+            def __init__(self):super().__init__();self.images={};self.backgrounds=[]
+            def handle_starttag(self, tag, attrs):
+                a=dict(attrs)
+                if tag=='img':self.images[a.get('data-em-admin-id')]=a
+                if 'banner-bg' in a.get('class','').split():self.backgrounds.append(a.get('style',''))
+            handle_startendtag=handle_starttag
+        url='/api/appearance/media/'+'a'*64
+        # The renderer reads immutable URLs; this isolates it from image encoding.
+        self.module.admin_store.change(0,lambda db,doc:doc['pages'].update({
+            'accueil':{'images':{'accueil:img:x:1':{'url':url},'accueil:img:x:7':{'url':url,'pos':'20% 30%','filter':'brightness(90%) contrast(110%) saturate(80%)'}}},
+            'commandes':{'images':{'commandes:img:banner-full:0':{'url':url}}}}))
+        response=self.client.get('/');tags=Tags();tags.feed(response.get_data(as_text=True))
+        self.assertEqual(tags.images['accueil:img:x:1']['src'],url+'/display.webp')
+        self.assertEqual(tags.images['accueil:img:x:1']['data-em-original-src'],'assets/img/21_bateaux_de_peche_port.jpg')
+        self.assertEqual(tags.images['accueil:img:x:7']['src'],url+'/display.webp')
+        self.assertIn('object-position:20% 30%',tags.images['accueil:img:x:7']['style'])
+        self.assertEqual(tags.images['accueil:img:x:1']['fetchpriority'],'high')
+        self.assertEqual(tags.images['accueil:img:x:1']['data-em-server-image'],'true')
+        response.close()
+        response=self.client.get('/commandes/');tags=Tags();tags.feed(response.get_data(as_text=True))
+        self.assertEqual(tags.images['commandes:img:banner-full:0']['src'],url+'/display.webp')
+        self.assertIn(url+'/display.webp',tags.backgrounds[0]);response.close()
+
+    def test_lightweight_media_preserves_original_alpha_and_survives_restart(self):
+        import io
+        from PIL import Image
+        source=Image.new('RGBA',(600,400),(20,130,230,90));buffer=io.BytesIO();source.save(buffer,format='PNG');raw=buffer.getvalue()
+        reply=self.client.post('/api/admin/media',json={'data':base64.b64encode(raw).decode()},headers=self.headers)
+        url=reply.json['url'];display=url+'/display.webp'
+        reply=self.client.get(display)
+        self.assertEqual(reply.status_code,200)
+        self.assertLess(len(reply.data),len(raw))
+        image=Image.open(io.BytesIO(reply.data));self.assertEqual(image.convert('RGBA').getpixel((20,20))[3],90)
+        self.assertEqual(self.client.get(url).data,raw)
+        self.assertEqual(self.client.get(display,headers={'If-None-Match':reply.headers['ETag']}).status_code,304)
+        self.module=importlib.reload(self.module)
+        visitor=self.module.app.test_client()
+        with patch('PIL.Image.open',side_effect=AssertionError('must reuse persistent derivative')):
+            again=visitor.get(display)
+        self.assertEqual(again.data,reply.data)
+        self.assertEqual(visitor.get(url).data,raw)
+        self.assertEqual(visitor.get('/api/appearance/media/missing/display.webp').status_code,404)
+
 
 if __name__=='__main__':
     unittest.main()

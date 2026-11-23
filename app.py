@@ -26,6 +26,7 @@ app = Flask(__name__, static_folder=None)
 app.config['MAX_CONTENT_LENGTH'] = 512 * 1024
 app.register_blueprint(contact)
 
+from appearance import render_images
 from admin import register_admin
 admin_store = register_admin(app, store, SITE)
 
@@ -239,11 +240,8 @@ def site_page(name):
     encoded = json.dumps(public, ensure_ascii=True).replace('<', '\\u003c').replace('>', '\\u003e').replace('&', '\\u0026')
     bootstrap = (
         '<script id="emAppearanceBootstrap" type="application/json">' + encoded + '</script>'
-        '<style>html.em-appearance-loading img,html.em-appearance-loading .banner-bg{visibility:hidden}</style>'
-        '<script>document.documentElement.classList.add("em-appearance-loading");'
-        'window.emAppearanceFallback=setTimeout(function(){document.documentElement.classList.remove("em-appearance-loading")},8000);</script>'
     )
-    content = (SITE / name).read_text(encoding='utf-8').replace('</head>', bootstrap + '</head>', 1)
+    content = render_images((SITE / name).read_text(encoding='utf-8'), page, public['pages'][page]).replace('</head>', bootstrap + '</head>', 1)
     return app.response_class(content, mimetype='text/html', headers={'Cache-Control': 'no-store'})
 
 

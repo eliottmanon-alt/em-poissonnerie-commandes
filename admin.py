@@ -1,6 +1,7 @@
 """Durable visual editor storage, isolated from orders and PC sync."""
 import base64
 import hashlib
+from functools import lru_cache
 import io
 import bleach
 from bleach.css_sanitizer import CSSSanitizer
@@ -39,6 +40,7 @@ class AdminStore:
         with self.store.connect() as db:
             db.execute('CREATE TABLE IF NOT EXISTS em_admin_document (id INTEGER PRIMARY KEY, revision INTEGER NOT NULL, payload TEXT NOT NULL)')
             db.execute('CREATE TABLE IF NOT EXISTS em_admin_media (id TEXT PRIMARY KEY, mime TEXT NOT NULL, data TEXT NOT NULL)')
+            db.execute('CREATE TABLE IF NOT EXISTS em_admin_media_display (id TEXT PRIMARY KEY, mime TEXT NOT NULL, data TEXT NOT NULL)')
             db.execute('CREATE TABLE IF NOT EXISTS em_admin_versions (id TEXT PRIMARY KEY, created_at TEXT NOT NULL, payload TEXT NOT NULL, kind TEXT NOT NULL DEFAULT \'published\')')
             db.execute('CREATE TABLE IF NOT EXISTS em_admin_private (name TEXT PRIMARY KEY, payload TEXT NOT NULL)')
             self.store.run(db, 'INSERT INTO em_admin_document (id,revision,payload) VALUES (1,0,?) ON CONFLICT(id) DO NOTHING', (json.dumps({'pages': {}, 'panel': None}),))
@@ -277,6 +279,48 @@ def register_admin(app, store, site):
         with store.connect() as db:
             store.run(db, 'INSERT INTO em_admin_media (id,mime,data) VALUES (?,?,?) ON CONFLICT(id) DO NOTHING', (key, mime, base64.b64encode(raw).decode()))
         return jsonify(url='/api/appearance/media/' + key)
+
+    @lru_cache(maxsize=48)
+    def display_media(key):
+        # Derived files are immutable and persisted separately; originals stay untouched.
+        with store.connect() as db:
+            row = store.run(db, 'SELECT mime,data FROM em_admin_media_display WHERE id=?', (key,)).fetchone()
+            if row:
+                return row[0], base64.b64decode(row[1])
+            original = store.run(db, 'SELECT mime,data FROM em_admin_media WHERE id=?', (key,)).fetchone()
+        if not original:
+            raise LookupError('media_not_found')
+        mime, raw = original[0], base64.b64decode(original[1])
+        try:
+            from PIL import Image, ImageOps
+            with Image.open(io.BytesIO(raw)) as source:
+                if source.width * source.height > 20_000_000:
+                    raise ValueError('image_too_large')
+                image = ImageOps.exif_transpose(source)
+                image = image.convert('RGBA' if 'A' in image.getbands() or 'transparency' in image.info else 'RGB')
+                image.thumbnail((1600, 1600), Image.Resampling.LANCZOS)
+                output = io.BytesIO()
+                image.save(output, format='WEBP', quality=88, method=5, exact=True)
+                optimized = output.getvalue()
+                if len(optimized) < len(raw):
+                    mime, raw = 'image/webp', optimized
+        except Exception:
+            # A damaged upload must not break the page or the original download.
+            pass
+        with store.connect() as db:
+            store.run(db, 'INSERT INTO em_admin_media_display (id,mime,data) VALUES (?,?,?) ON CONFLICT(id) DO NOTHING', (key, mime, base64.b64encode(raw).decode()))
+        return mime, raw
+
+    @bp.get('/api/appearance/media/<key>/display.webp')
+    def media_display(key):
+        try:
+            value = display_media(key)
+        except LookupError:
+            return '', 404
+        mime, raw = value
+        response = send_file(io.BytesIO(raw), mimetype=mime, etag=key + '-display-v1', conditional=True, max_age=31536000)
+        response.headers['Cache-Control'] = 'public,max-age=31536000,immutable'
+        return response
 
     @bp.get('/api/appearance/media/<key>')
     def media(key):

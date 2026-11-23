@@ -99,3 +99,9 @@ Un navigateur ne peut pas lire les données privées d'un autre navigateur ou d'
 Le fichier de sauvegarde visuelle n'est pas une sauvegarde des commandes. La sauvegarde PostgreSQL Render couvre la base dans son ensemble. Le stockage des images partage le quota existant de la base ; aucun abonnement de stockage supplémentaire n'est créé.
 
 Validation locale : `python -m unittest discover -s tests -v` et `node --check site/assets/admin/admin.js`. Les tests d'e-mail utilisent un fournisseur simulé, sans envoi externe.
+
+### Affichage immédiat des photos personnalisées
+
+Les quatre pages reçoivent leurs réglages publics dans leur HTML initial. Les adresses des images, le cadrage et les filtres sont également rendus côté serveur, avant tout JavaScript ; les identifiants Admin existants restent inchangés. La bannière de l'accueil est présente directement dans le HTML, avec le même carrousel et la même structure que précédemment.
+
+Les photos remplacées utilisent une variante d'affichage allégée sous `/api/appearance/media/ID/display.webp`. Les originaux et leurs URLs sont conservés dans `em_admin_media` pour les exports et les restaurations. Les variantes sont enregistrées séparément dans `em_admin_media_display`, conservent la transparence, puis bénéficient d'un cache immuable et d'un ETag. Elles ne sont recalculées ni à chaque visite ni à chaque déploiement. Les photos situées hors de la zone initialement visible se chargent progressivement ; la première photo de bannière est prioritaire.

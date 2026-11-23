@@ -98,9 +98,10 @@ function openDB(){return new Promise((res,rej)=>{const r=indexedDB.open(DB,1);r.
 async function dbPut(k,b){const db=await openDB();await new Promise((res,rej)=>{const tx=db.transaction('images','readwrite');tx.objectStore('images').put(b,k);tx.oncomplete=res;tx.onerror=()=>rej(tx.error)});db.close()}
 async function dbGet(k){const db=await openDB();const v=await new Promise((res,rej)=>{const tx=db.transaction('images');const r=tx.objectStore('images').get(k);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});db.close();return v}
 async function dbDel(k){const db=await openDB();await new Promise((res,rej)=>{const tx=db.transaction('images','readwrite');tx.objectStore('images').delete(k);tx.oncomplete=res;tx.onerror=()=>rej(tx.error)});db.close()}
+function displayImageURL(url){return /^\/api\/appearance\/media\/[a-f0-9]{64}$/.test(url||'')?url+'/display.webp':url}
 async function hydrateImages(){for(const [id,m] of Object.entries(state.images||{})){
  const el=qid(id);if(!el||el.tagName!=='IMG')continue;
- let url=m.url||m.src;
+ let url=displayImageURL(m.url||m.src);
  if(!url&&m.key){try{const blob=await dbGet(m.key);if(blob)url=URL.createObjectURL(blob)}catch(_){}}
  if(url){if(el.dataset.emObjectUrl)URL.revokeObjectURL(el.dataset.emObjectUrl);if(el.getAttribute('src')!==url)el.src=url;if(url.startsWith('blob:'))el.dataset.emObjectUrl=url;if(el.classList.contains('banner-full')){const bg=el.closest('.plateau-banner')?.querySelector('.banner-bg');if(bg)bg.style.backgroundImage=`url("${url}")`}}
  if(m.pos)el.style.objectPosition=m.pos;if(m.filter)el.style.filter=m.filter;
