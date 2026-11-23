@@ -3,12 +3,17 @@ import importlib
 import os
 import tempfile
 import unittest
+from unittest.mock import patch
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 
 class OrdersTest(unittest.TestCase):
     def setUp(self):
+        # No order test may send a real email; specific mail tests override this mock.
+        self.mail_mock = patch('order_mail.send', return_value='test-provider-id')
+        self.mail_mock.start()
+        self.addCleanup(self.mail_mock.stop)
         self.temp = tempfile.TemporaryDirectory()
         os.environ['EM_LOCAL_DB'] = self.temp.name + '/orders.sqlite3'
         os.environ['EM_SITE_API_KEY'] = 'local-test-key'

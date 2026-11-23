@@ -26,6 +26,9 @@ app = Flask(__name__, static_folder=None)
 app.config['MAX_CONTENT_LENGTH'] = 512 * 1024
 app.register_blueprint(contact)
 
+from admin import register_admin
+admin_store = register_admin(app, store, SITE)
+
 
 def now():
     return datetime.now(ZoneInfo('Europe/Paris')).isoformat(timespec='microseconds')
@@ -43,7 +46,7 @@ def headers(response):
     response.headers['X-Frame-Options'] = 'SAMEORIGIN'
     response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
     response.headers['X-Robots-Tag'] = 'noindex, nofollow'
-    if request.path.startswith('/api/'):
+    if request.path.startswith('/api/') and not request.path.startswith('/api/appearance/media/'):
         response.headers['Cache-Control'] = 'no-store'
     return response
 
