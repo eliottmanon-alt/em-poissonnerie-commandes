@@ -84,6 +84,41 @@ class AdminTest(unittest.TestCase):
         self.assertEqual(self.client.post('/api/admin/media',json={'data':base64.b64encode(b'<svg onload="x"/>').decode()},headers=self.headers).status_code,400)
         self.assertEqual(self.put({'images':{'x':{'url':'/api/appearance/media/missing'}}},1).status_code,400)
 
+    def test_html_contains_current_public_settings_before_body(self):
+        import re
+        value = '</script><img src=x onerror=alert(1)> & "photos"'
+        def edit(db, doc):
+            doc['pages']['accueil'] = {'texts': {'title': value}, 'images': {'photo': {'url': '/api/appearance/media/example'}}}
+            doc['pages']['commandes'] = {'texts': {'other': 'other page'}}
+        self.module.admin_store.change(0, edit)
+        response = self.client.get('/')
+        html = response.get_data(as_text=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers['Cache-Control'], 'no-store')
+        match = re.search(r'<script id="emAppearanceBootstrap" type="application/json">(.*?)</script>', html, re.S)
+        self.assertIsNotNone(match)
+        self.assertLess(match.start(), html.index('<body'))
+        public = json.loads(match.group(1))
+        self.assertEqual(public['pages']['accueil']['texts']['title'], value)
+        self.assertEqual(set(public['pages']), {'accueil'})
+        self.assertEqual(set(public), {'pages', 'revision', 'panel'})
+        self.assertNotIn('</script>', match.group(1))
+        self.assertNotIn(self.module.admin_store.auth()['secret'], html)
+        response.close()
+        for path, page in [('/commandes/', 'commandes'), ('/commandes/informations.html', 'commandes-informations'), ('/commandes/confirmation.html', 'commandes-confirmation')]:
+            response = self.client.get(path)
+            payload = re.search(r'<script id="emAppearanceBootstrap" type="application/json">(.*?)</script>', response.get_data(as_text=True), re.S)
+            self.assertEqual(set(json.loads(payload.group(1))['pages']), {page})
+            response.close()
+
+    def test_first_html_request_initializes_storage_without_admin_login(self):
+        # A new worker can serve current appearance before any session API request.
+        self.module = importlib.reload(self.module)
+        response = self.module.app.test_client().get('/')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('emAppearanceBootstrap', response.get_data(as_text=True))
+        response.close()
+
 
 if __name__=='__main__':
     unittest.main()

@@ -102,7 +102,7 @@ async function hydrateImages(){for(const [id,m] of Object.entries(state.images||
  const el=qid(id);if(!el||el.tagName!=='IMG')continue;
  let url=m.url||m.src;
  if(!url&&m.key){try{const blob=await dbGet(m.key);if(blob)url=URL.createObjectURL(blob)}catch(_){}}
- if(url){if(el.dataset.emObjectUrl)URL.revokeObjectURL(el.dataset.emObjectUrl);el.src=url;if(url.startsWith('blob:'))el.dataset.emObjectUrl=url;if(el.classList.contains('banner-full')){const bg=el.closest('.plateau-banner')?.querySelector('.banner-bg');if(bg)bg.style.backgroundImage=`url("${url}")`}}
+ if(url){if(el.dataset.emObjectUrl)URL.revokeObjectURL(el.dataset.emObjectUrl);if(el.getAttribute('src')!==url)el.src=url;if(url.startsWith('blob:'))el.dataset.emObjectUrl=url;if(el.classList.contains('banner-full')){const bg=el.closest('.plateau-banner')?.querySelector('.banner-bg');if(bg)bg.style.backgroundImage=`url("${url}")`}}
  if(m.pos)el.style.objectPosition=m.pos;if(m.filter)el.style.filter=m.filter;
 }}
 function toast(t){document.querySelector('.em-admin-toast')?.remove();const d=document.createElement('div');d.className='em-admin-toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),1200)}
@@ -212,13 +212,21 @@ async function importConfig(e){const f=e.target.files?.[0];if(!f)return;try{
  const value={...emptyState(),...o.state};await transferImages(value,o.images||{});snapshot();state=value;await reloadSaved();
  }catch(err){status(err.message);toast('Importation interrompue : sauvegarde conservée')}finally{e.target.value=''}}
 async function resetPage(){if(!confirm('Réinitialiser les réglages serveur de cette page ? Les versions figées et anciennes copies locales restent disponibles.'))return;snapshot();state=emptyState();await reloadSaved()}
+function revealAppearance(){clearTimeout(window.emAppearanceFallback);document.documentElement.classList.remove('em-appearance-loading')}
 document.addEventListener('DOMContentLoaded',async()=>{
- assign();
  try{
-  const [doc,auth]=await Promise.all([api('/api/appearance'),api('/api/admin/session')]);documentState=doc;revision=doc.revision;panelPosition=doc.panel;state={...emptyState(),...(doc.pages[PAGE]||{})};authenticated=auth.authenticated;csrf=auth.csrf;
-  await apply();buildUI();renderBanner();
+  assign();
+  // Authentication never delays applying public photos and layout.
+  const authRequest=api('/api/admin/session').catch(()=>({authenticated:false,csrf:null}));
+  const embedded=document.getElementById('emAppearanceBootstrap');
+  const doc=embedded?JSON.parse(embedded.textContent):await api('/api/appearance');
+  documentState=doc;revision=doc.revision;panelPosition=doc.panel;state={...emptyState(),...(doc.pages[PAGE]||{})};
+  await apply();revealAppearance();
+  const auth=await authRequest;authenticated=auth.authenticated;csrf=auth.csrf;
+  buildUI();renderBanner();
   if(authenticated){try{if(localStorage.getItem(STORE))status('Anciens réglages disponibles : Récupérer les anciens réglages');const pending=JSON.parse(localStorage.getItem('em-admin-pending:'+PAGE)||'null');if(pending&&JSON.stringify(pending.state)!==JSON.stringify(state))status('Copie non envoyée disponible : bouton Récupérer')}catch(_){}}
   if(authenticated&&new URLSearchParams(location.search).has('admin'))document.getElementById('emAdminLauncher').click();
- }catch(e){console.warn(e);buildUI();document.getElementById('emAdminLauncher').onclick=()=>location.href='/admin';}
+ }catch(e){console.warn(e);if(!document.getElementById('emAdminLauncher'))buildUI();document.getElementById('emAdminLauncher').onclick=()=>location.href='/admin';}
+ finally{revealAppearance()}
 });
 })();

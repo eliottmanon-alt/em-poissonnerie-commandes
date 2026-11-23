@@ -26,9 +26,17 @@ class Conflict(Exception):
 class AdminStore:
     def __init__(self, store):
         self.store = store
+        self.initialized = False
 
     def init(self):
-        with LOCK, self.store.connect() as db:
+        with LOCK:
+            if self.initialized:
+                return
+            self._initialize()
+            self.initialized = True
+
+    def _initialize(self):
+        with self.store.connect() as db:
             db.execute('CREATE TABLE IF NOT EXISTS em_admin_document (id INTEGER PRIMARY KEY, revision INTEGER NOT NULL, payload TEXT NOT NULL)')
             db.execute('CREATE TABLE IF NOT EXISTS em_admin_media (id TEXT PRIMARY KEY, mime TEXT NOT NULL, data TEXT NOT NULL)')
             db.execute('CREATE TABLE IF NOT EXISTS em_admin_versions (id TEXT PRIMARY KEY, created_at TEXT NOT NULL, payload TEXT NOT NULL, kind TEXT NOT NULL DEFAULT \'published\')')
@@ -41,6 +49,7 @@ class AdminStore:
             return json.loads(self.store.run(db, 'SELECT payload FROM em_admin_private WHERE name=?', ('auth',)).fetchone()[0])
 
     def read(self):
+        self.init()
         with self.store.connect() as db:
             row = db.execute('SELECT revision,payload FROM em_admin_document WHERE id=1').fetchone()
             return {'revision': row[0], **json.loads(row[1])}

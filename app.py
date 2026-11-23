@@ -221,9 +221,35 @@ def robots():
     return 'User-agent: *\nDisallow: /\n', 200, {'Content-Type': 'text/plain'}
 
 
+APPEARANCE_PAGES = {
+    'index.html': 'accueil',
+    'commandes/index.html': 'commandes',
+    'commandes/informations.html': 'commandes-informations',
+    'commandes/confirmation.html': 'commandes-confirmation',
+}
+
+
+def site_page(name):
+    """Ship the current public settings in the HTML, avoiding a second round trip."""
+    page = APPEARANCE_PAGES[name]
+    document = admin_store.read()
+    public = {'revision': document['revision'], 'panel': document['panel'],
+              'pages': {page: document['pages'].get(page, {})}}
+    # Escape HTML delimiters so even text containing </script> stays inert JSON.
+    encoded = json.dumps(public, ensure_ascii=True).replace('<', '\\u003c').replace('>', '\\u003e').replace('&', '\\u0026')
+    bootstrap = (
+        '<script id="emAppearanceBootstrap" type="application/json">' + encoded + '</script>'
+        '<style>html.em-appearance-loading img,html.em-appearance-loading .banner-bg{visibility:hidden}</style>'
+        '<script>document.documentElement.classList.add("em-appearance-loading");'
+        'window.emAppearanceFallback=setTimeout(function(){document.documentElement.classList.remove("em-appearance-loading")},8000);</script>'
+    )
+    content = (SITE / name).read_text(encoding='utf-8').replace('</head>', bootstrap + '</head>', 1)
+    return app.response_class(content, mimetype='text/html', headers={'Cache-Control': 'no-store'})
+
+
 @app.get('/')
 def index():
-    return send_from_directory(SITE, 'index.html')
+    return site_page('index.html')
 
 
 @app.get('/<path:name>')
@@ -235,6 +261,8 @@ def static_site(name):
         if not request.path.endswith('/'):
             return redirect(request.path + '/')
         name = str(Path(name) / 'index.html')
+    if name in APPEARANCE_PAGES:
+        return site_page(name)
     return send_from_directory(SITE, name)
 
 
