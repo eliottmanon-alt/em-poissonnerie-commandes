@@ -29,6 +29,13 @@ def messages(record):
     for special in order.get('specialRequests', []):
         lines.append('• Demande spéciale, prix à confirmer : ' + special)
     lines += ['', 'Total des articles chiffrés : ' + amount(order['total'])]
+    payment = record.get('payment', {})
+    if payment.get('status') == 'deposit_paid':
+        lines += ['', 'Acompte de 20 % payé par carte : ' + amount(Decimal(payment['deposit_paid_cents']) / 100),
+                  'Solde à régler au retrait : ' + amount(Decimal(payment['balance_due_cents']) / 100),
+                  'Règlement du solde par carte bancaire ou en espèces.']
+        if order.get('specialRequests'):
+            lines.append('Pièces sur demande : prix à confirmer, non inclus dans le calcul de l’acompte.')
     if order.get('giftUnlocked'):
         lines.append('Une bouteille de Jean Dellac Sauvignon est offerte avec ce plateau.')
     if customer.get('comment'):

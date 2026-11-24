@@ -3,3 +3,4 @@ gunicorn==26.2.0
 psycopg[binary]==3.3.6
 bleach[css]==6.2.0
 Pillow==13.0.0
+stripe==17.1.0

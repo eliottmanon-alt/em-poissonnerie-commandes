@@ -13,6 +13,7 @@ from zoneinfo import ZoneInfo
 from flask import Flask, jsonify, request, send_from_directory, redirect
 from storage import Store, StorageUnavailable
 import order_mail
+import payments
 from contact import contact, configured as contact_configured
 
 BASE = Path(__file__).resolve().parent
@@ -152,8 +153,20 @@ def validate(payload):
     return clean, customer
 
 
+def make_order_record(order, customer):
+    timestamp = now()
+    client_name = unicodedata.normalize('NFKD', customer['lastName']).encode('ascii', 'ignore').decode().upper()
+    client_name = re.sub(r'[^A-Z0-9]+', '-', client_name).strip('-')[:40] or 'CLIENT'
+    record = {'id': 'WEB-' + datetime.now(ZoneInfo('Europe/Paris')).strftime('%Y%m%d') + '-' + client_name + '-' + secrets.token_hex(4).upper(),
+              'created_at': timestamp, 'status': 'new', 'order': order, 'customer': customer,
+              'confirmedAt': timestamp, 'status_history': [{'status': 'new', 'at': timestamp}], 'source': 'site-v10.6-test'}
+    return record
+
+
 @app.post('/api/orders')
 def create_order():
+    if payments.enabled():
+        return jsonify(ok=False, error='deposit_required', message='Le paiement de l’acompte est requis avant validation.'), 402
     payload = request.get_json(silent=True)
     try:
         order, customer = validate(payload)
@@ -163,12 +176,7 @@ def create_order():
     if not isinstance(request_id, str) or not re.fullmatch(r'[A-Za-z0-9_-]{16,100}', request_id):
         return jsonify(ok=False, error='missing_request_id'), 400
     digest = hashlib.sha256(json.dumps({'order': order, 'customer': customer}, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
-    timestamp = now()
-    client_name = unicodedata.normalize('NFKD', customer['lastName']).encode('ascii', 'ignore').decode().upper()
-    client_name = re.sub(r'[^A-Z0-9]+', '-', client_name).strip('-')[:40] or 'CLIENT'
-    record = {'id': 'WEB-' + datetime.now(ZoneInfo('Europe/Paris')).strftime('%Y%m%d') + '-' + client_name + '-' + secrets.token_hex(4).upper(),
-              'created_at': timestamp, 'status': 'new', 'order': order, 'customer': customer,
-              'confirmedAt': timestamp, 'status_history': [{'status': 'new', 'at': timestamp}], 'source': 'site-v10.6-test'}
+    record = make_order_record(order, customer)
     try:
         saved, created = store.insert(record, request_id, digest)
     except ValueError:
@@ -262,6 +270,9 @@ def static_site(name):
     if name in APPEARANCE_PAGES:
         return site_page(name)
     return send_from_directory(SITE, name)
+
+
+payment_store = payments.register_payments(app, store, validate, make_order_record)
 
 
 if __name__ == '__main__':

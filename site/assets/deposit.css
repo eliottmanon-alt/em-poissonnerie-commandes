@@ -1,0 +1,11 @@
+.em-deposit-info{margin:24px 0;padding:24px;background:#f2f7f8;border:1px solid #cadce1;border-radius:12px;color:#143746;line-height:1.55}
+.em-deposit-info[hidden]{display:none}
+.em-deposit-info h2{font-size:29px;margin:0 0 12px}
+.em-deposit-info p{font-size:16px;margin:12px 0}
+.em-deposit-info dl{margin:18px 0;border-block:1px solid #cadce1}
+.em-deposit-info dl>div{display:flex;justify-content:space-between;gap:18px;padding:14px 0}
+.em-deposit-info dt{font-size:16px}
+.em-deposit-info dd{margin:0;font-size:21px;font-weight:600;white-space:nowrap}
+.em-deposit-security{padding-top:14px;border-top:1px solid #cadce1}
+.em-deposit-test,.em-deposit-email{background:#fff3ce;padding:12px;border-radius:6px}
+@media(max-width:650px){.em-deposit-info{padding:18px}.em-deposit-info h2{font-size:25px}.em-deposit-info dl>div{flex-wrap:wrap;gap:4px}.final-actions{display:flex;flex-direction:column;gap:12px}.final-actions button{width:100%;min-height:48px}}

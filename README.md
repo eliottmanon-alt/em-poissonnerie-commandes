@@ -105,3 +105,57 @@ Validation locale : `python -m unittest discover -s tests -v` et `node --check s
 Les quatre pages reçoivent leurs réglages publics dans leur HTML initial. Les adresses des images, le cadrage et les filtres sont également rendus côté serveur, avant tout JavaScript ; les identifiants Admin existants restent inchangés. La bannière de l'accueil est présente directement dans le HTML, avec le même carrousel et la même structure que précédemment.
 
 Les photos remplacées utilisent une variante d'affichage allégée sous `/api/appearance/media/ID/display.webp`. Les originaux et leurs URLs sont conservés dans `em_admin_media` pour les exports et les restaurations. Les variantes sont enregistrées séparément dans `em_admin_media_display`, conservent la transparence, puis bénéficient d'un cache immuable et d'un ETag. Elles ne sont recalculées ni à chaque visite ni à chaque déploiement. Les photos situées hors de la zone initialement visible se chargent progressivement ; la première photo de bannière est prioritaire.
+
+## Acompte Stripe préparé — 24 novembre 2026
+
+Le code du paiement par carte de **20 %** est prêt, mais reste **désactivé par défaut**.
+Aucun accès Stripe, secret ou changement de configuration de paiement réel n’a été ajouté.
+Sans `EM_DEPOSIT_ENABLED=1`, le parcours d’enregistrement existant est conservé.
+Si l’option est activée avec une configuration incomplète, la validation est bloquée ;
+elle ne revient jamais silencieusement à une commande sans acompte.
+
+Le serveur recalcule les prix du catalogue, l’acompte arrondi au centime et le solde.
+Le minimum technique de l’acompte est de 0,50 €. Les pièces spéciales non chiffrées
+restent hors du calcul et sont signalées au client ; un panier entièrement non chiffré
+nécessite un devis avant paiement. L’adresse e-mail est obligatoire pour l’acompte.
+Le client est redirigé vers Stripe Checkout (carte uniquement) ; aucune saisie de carte
+ne passe par le site. La session et ses reprises utilisent une clé d’idempotence stable.
+
+Les tentatives non payées sont dans `em_payment_attempts`, séparées des commandes
+et des e-mails. Seul un webhook signé, après récupération de la session auprès de
+Stripe et vérification du montant, de la devise, du mode test/réel et de la référence,
+crée une commande `new`, avec `payment.status=deposit_paid`. Cette insertion et
+l’outbox d’e-mails sont atomiques. Les reprises ne créent pas de deuxième commande.
+Le retour navigateur ne suffit jamais à confirmer un paiement. Le panier est conservé
+en cas d’échec ou d’annulation et vidé après confirmation du paiement côté serveur.
+
+L’e-mail client et la copie professionnelle partent après confirmation du paiement,
+avec les montants de l’acompte et du solde, payable au retrait par carte ou espèces.
+En cas d’incident du fournisseur mail, l’outbox existante conserve l’envoi en attente :
+la commande payée reste validée. La synchronisation du logiciel conserve l’objet
+`payment` dans la commande ; son éventuel affichage dans le logiciel reste à vérifier.
+
+### Liaison du compte, à faire ultérieurement
+
+1. Configurer dans Render uniquement `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`,
+   `EM_STRIPE_MODE=test` et `EM_PUBLIC_URL=https://commandes.empoissonnerie.com`.
+   Ne jamais coller une clé dans le code, le dépôt, un export ou une conversation.
+2. Ajouter dans Stripe le webhook
+   `https://commandes.empoissonnerie.com/api/payments/webhook` pour
+   `checkout.session.completed` et `checkout.session.async_payment_succeeded`.
+3. Vérifier l’envoi des e-mails déjà configuré, puis activer `EM_DEPOSIT_ENABLED=1`
+   en environnement de test. Tester paiement réussi, refus, annulation, reprise,
+   webhook retardé/dupliqué et confirmation sans retour navigateur.
+4. Le passage réel nécessitera les secrets réels et `EM_STRIPE_MODE=live`, après
+   ce test de bout en bout. Aucune mise en paiement réel n’a été effectuée ici.
+
+Validation locale : `python -m unittest discover -s tests` et
+`node --check site/assets/checkout.js`. Les tests Stripe sont simulés, avec de
+vraies signatures de webhook locales ; ils ne débitent rien et n’envoient aucun mail.
+Ils ne remplacent pas le test de bout en bout avec le compte Stripe du commerçant.
+
+Limites opérationnelles : le limiteur de tentatives est en mémoire, adapté au service
+Render actuel à un worker ; le distribuer avant une mise à l’échelle. Prévoir la purge
+périodique des anciennes tentatives non payées selon la politique de conservation.
+Les remboursements et changements de prix des pièces spéciales restent des opérations
+à traiter séparément lors de la liaison du compte.
