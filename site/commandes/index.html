@@ -65,14 +65,21 @@ h1,h2,h3{font-family:Baskerville,"Palatino Linotype",Georgia,serif;font-weight:4
 
 .simple-panel{background:#fff}.simple-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:52px;align-items:center}.simple-grid img{width:100%;height:520px;object-fit:cover}.simple-grid h2{font-size:55px;margin:0}.simple-grid p{color:var(--muted);line-height:1.8;font-size:16px}.placeholder-box{margin-top:24px;padding:22px;border:1px dashed #bcc8cb;background:#fafcfc;font-size:14px;line-height:1.65}.catalog-tags{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}.catalog-tags span{padding:10px 13px;border:1px solid var(--line);font-size:12px;background:#fff}
 
-.promo-live-wrap{max-width:var(--max);margin:auto}.promo-live-head{margin-bottom:28px}.promo-live-head h2{font-size:55px;margin:0 0 8px}.promo-live-head p{color:var(--muted);margin:0}
-.promo-live-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}.promo-live-grid.one{grid-template-columns:minmax(0,760px);justify-content:center}
-.promo-live-card{background:#fff;border:1px solid var(--line);overflow:hidden;box-shadow:0 12px 30px rgba(20,55,70,.08)}
-.promo-live-photo{height:420px;background:#edf2f3}.promo-live-photo img{width:100%;height:100%;object-fit:cover}
-.promo-live-body{padding:28px 30px 32px}.promo-live-title{font-family:"Poiret One",sans-serif;font-size:38px;line-height:1.06;margin:0 0 15px}
-.promo-live-price{font-size:44px;font-weight:600;line-height:1;color:#c7352d;margin-bottom:12px}.promo-live-unit{font-size:17px;color:var(--muted);font-weight:400;margin-left:8px}
-.promo-live-origin{font-size:14px;color:var(--muted)}.promo-live-error{padding:24px;border:1px solid var(--line);background:#fff;color:var(--muted)}
-@media(max-width:800px){.promo-live-grid{grid-template-columns:1fr}.promo-live-photo{height:300px}.promo-live-title{font-size:31px}.promo-live-price{font-size:36px}}
+.promo-live-wrap{max-width:var(--max);margin:auto}.promo-live-head{margin-bottom:30px;text-align:center}.promo-live-head h2{font-size:58px;margin:0 0 8px}.promo-live-head p{color:var(--muted);margin:0}
+.promo-live-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px}.promo-live-grid.one{grid-template-columns:minmax(0,760px);justify-content:center}
+.promo-live-card{position:relative;background:#fff;border:2px solid #d8b14f;overflow:hidden;box-shadow:0 18px 44px rgba(20,55,70,.12)}
+.promo-live-card:before{content:"PROMO";position:absolute;z-index:3;left:18px;top:18px;background:#c7352d;color:#fff;padding:10px 14px;font-size:13px;font-weight:600;letter-spacing:.15em;box-shadow:0 6px 18px rgba(0,0,0,.18)}
+.promo-live-card:after{content:"";position:absolute;inset:8px;pointer-events:none;border:1px solid rgba(216,177,79,.55)}
+.promo-live-photo{height:390px;background:#edf2f3;position:relative}.promo-live-photo img{width:100%;height:100%;object-fit:cover}
+.promo-live-body{position:relative;z-index:2;padding:30px 32px 34px;background:linear-gradient(180deg,#fff,#fffaf0)}
+.promo-live-title{font-family:"Poiret One",sans-serif;font-size:42px;line-height:1.02;margin:0 0 12px}
+.promo-live-price{font-size:52px;font-weight:700;line-height:1;color:#c7352d;margin:8px 0 13px}.promo-live-unit{font-size:18px;color:var(--ink);font-weight:500;margin-left:8px}
+.promo-live-origin{font-size:14px;color:var(--muted);margin-bottom:20px}
+.promo-order-row{display:flex;align-items:end;justify-content:space-between;gap:18px;padding-top:20px;border-top:1px solid #eadfca}
+.promo-qty-wrap label{display:block;font-size:11px;color:var(--muted);margin-bottom:7px}.promo-qty{display:flex;align-items:center;gap:8px}.promo-qty button{width:42px;height:42px;border:1px solid #c9d2d5;background:#fff;color:var(--ink);font-size:24px;cursor:pointer}.promo-qty input{width:86px;height:42px;border:1px solid #c9d2d5;text-align:center;font-weight:600;color:var(--ink)}
+.promo-buy{border:0;background:var(--ink);color:#fff;padding:14px 20px;font-size:13px;cursor:pointer;min-width:190px}.promo-buy:hover{background:var(--ink2)}
+.promo-live-error{padding:24px;border:1px solid var(--line);background:#fff;color:var(--muted)}
+@media(max-width:800px){.promo-live-grid{grid-template-columns:1fr}.promo-live-photo{height:300px}.promo-live-title{font-size:34px}.promo-live-price{font-size:42px}.promo-order-row{align-items:stretch;flex-direction:column}.promo-buy{width:100%}}
 
 footer{background:var(--ink2);color:#d7e3e6;padding:52px 34px}.footer-inner{max-width:var(--max);margin:auto;display:flex;justify-content:space-between;align-items:end;gap:34px}footer img{width:105px;background:#fff;border-radius:50%}footer p{font-size:12px;line-height:1.7}.footer-links{display:flex;gap:18px;flex-wrap:wrap;font-size:11px;justify-content:flex-end}
 
@@ -591,11 +598,17 @@ const promoGrid=document.getElementById('promoLiveGrid');
 function escapePromoText(value){
   return String(value ?? '').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 }
+function parsePromoPrice(value){
+  const m=String(value||'').replace(/\s/g,'').replace(',','.').match(/\d+(?:\.\d{1,2})?/);
+  return m?Number(m[0]):0;
+}
 function promoPriceText(p){
   const price=escapePromoText(p.price||'');
   const unit=escapePromoText(p.unit||'');
   return price + (unit ? '<span class="promo-live-unit">'+unit+'</span>' : '');
 }
+function promoStep(p){return p.unit==='€/kg'?0.5:1}
+function promoUnitLabel(p){return p.unit==='€/kg'?'Quantité (kg)':'Nombre de lots'}
 function renderPromotions(list){
   const active=(Array.isArray(list)?list:[]).filter(p=>p&&p.active).sort((a,b)=>(+a.slot||99)-(+b.slot||99)).slice(0,2);
   if(!active.length){
@@ -608,13 +621,44 @@ function renderPromotions(list){
   if(promoPanel) promoPanel.style.display='';
   promoGrid.classList.toggle('one',active.length===1);
   promoGrid.innerHTML=active.map(p=>{
+    const step=promoStep(p),start=step;
     const photo=p.photo ? '<div class="promo-live-photo"><img src="'+p.photo+'" alt="'+escapePromoText(p.title||'Promotion')+'"></div>' : '';
-    return '<article class="promo-live-card">'+photo+
+    return '<article class="promo-live-card" data-promo-id="'+escapePromoText(p.id)+'">'+photo+
       '<div class="promo-live-body"><h3 class="promo-live-title">'+escapePromoText(p.title||'Promotion')+'</h3>'+
       '<div class="promo-live-price">'+promoPriceText(p)+'</div>'+
       (p.origin?'<div class="promo-live-origin">Provenance : '+escapePromoText(p.origin)+'</div>':'')+
+      '<div class="promo-order-row"><div class="promo-qty-wrap"><label>'+promoUnitLabel(p)+'</label><div class="promo-qty">'+
+      '<button type="button" class="promo-minus">−</button><input class="promo-qty-input" type="number" min="'+step+'" step="'+step+'" value="'+start+'"><button type="button" class="promo-plus">+</button>'+
+      '</div></div><button type="button" class="promo-buy">Commander cette promo</button></div>'+
       '</div></article>';
   }).join('');
+  active.forEach(p=>{
+    const card=promoGrid.querySelector('[data-promo-id="'+CSS.escape(p.id)+'"]');
+    if(!card)return;
+    const input=card.querySelector('.promo-qty-input'),step=promoStep(p);
+    card.querySelector('.promo-minus').onclick=()=>{input.value=Math.max(step,(Number(input.value)||step)-step);};
+    card.querySelector('.promo-plus').onclick=()=>{input.value=(Number(input.value)||step)+step;};
+    card.querySelector('.promo-buy').onclick=()=>orderPromotion(p,Number(input.value)||step);
+  });
+}
+function orderPromotion(p,quantity){
+  const price=parsePromoPrice(p.price);
+  if(!price){alert('Le prix de cette promotion est invalide.');return}
+  const q=Math.max(promoStep(p),quantity||promoStep(p));
+  const line=price*q;
+  const order={
+    guests:1,
+    items:[{name:p.title||'Promotion',unit:p.unit==='€/kg'?'kg':'lot',price,quantity:q,lineTotal:line,promoId:p.id,promotion:true,origin:p.origin||''}],
+    specialRequests:[],
+    total:line,
+    average:line,
+    giftUnlocked:line>=80,
+    savedAt:new Date().toISOString()
+  };
+  localStorage.setItem('emPoissonnerieOrder',JSON.stringify(order));
+  localStorage.removeItem('emPoissonnerieCheckout');
+  localStorage.removeItem('emPoissonnerieCustomer');
+  window.location.href='informations.html';
 }
 fetch('/api/promotions',{cache:'no-store'})
   .then(r=>{if(!r.ok) throw new Error('HTTP '+r.status); return r.json();})
