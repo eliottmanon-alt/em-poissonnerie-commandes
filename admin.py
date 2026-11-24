@@ -54,7 +54,17 @@ class AdminStore:
         self.init()
         with self.store.connect() as db:
             row = db.execute('SELECT revision,payload FROM em_admin_document WHERE id=1').fetchone()
-            return {'revision': row[0], **json.loads(row[1])}
+            payload = json.loads(row[1])
+            payload.setdefault('pages', {})
+            payload.setdefault('panel', None)
+            payload.setdefault('gallery', [
+                {'id':'gallery-default-1','url':'assets/embedded/80421f1223c95be0.jpg'},
+                {'id':'gallery-default-2','url':'assets/embedded/74e30ce3477d9e73.jpg'},
+                {'id':'gallery-default-3','url':'assets/embedded/b380fabcb0286ccf.jpg'},
+                {'id':'gallery-default-4','url':'assets/embedded/30b968d4dadb193c.jpg'},
+                {'id':'gallery-default-5','url':'assets/embedded/7da2fe5d6831fc01.jpg'}
+            ])
+            return {'revision': row[0], **payload}
 
     def change(self, revision, edit):
         with LOCK, self.store.connect() as db:
@@ -331,6 +341,58 @@ def register_admin(app, store, site):
         response = send_file(io.BytesIO(base64.b64decode(row[1])), mimetype=row[0])
         response.headers['Cache-Control'] = 'public,max-age=31536000,immutable'
         return response
+
+    @bp.get('/api/gallery')
+    def gallery():
+        doc = data.read()
+        rows = doc.get('gallery', [])
+        safe = []
+        for row in rows[:40]:
+            if not isinstance(row, dict):
+                continue
+            url = str(row.get('url') or '')
+            if url.startswith('/api/appearance/media/'):
+                url = url + '/display.webp'
+            elif not url.startswith(('assets/', '/assets/')):
+                continue
+            safe.append({'id': str(row.get('id') or ''), 'url': url})
+        return jsonify(gallery=safe)
+
+    @bp.put('/api/admin/gallery')
+    def save_gallery():
+        body = request.get_json(silent=True) or {}
+        rows = body.get('gallery')
+        if type(body.get('revision')) is not int or not isinstance(rows, list) or len(rows) > 40:
+            return jsonify(error='invalid_gallery'), 400
+        cleaned = []
+        seen = set()
+        for row in rows:
+            if not isinstance(row, dict):
+                return jsonify(error='invalid_gallery'), 400
+            key = str(row.get('id') or '').strip()
+            url = str(row.get('url') or '').strip()
+            if not key or len(key) > 100 or key in seen:
+                return jsonify(error='invalid_gallery'), 400
+            seen.add(key)
+            if url.startswith('/api/appearance/media/'):
+                media_id = url.rsplit('/', 1)[-1]
+                if len(media_id) != 64:
+                    return jsonify(error='invalid_gallery'), 400
+            elif not url.startswith(('assets/', '/assets/')):
+                return jsonify(error='invalid_gallery'), 400
+            cleaned.append({'id': key, 'url': url})
+        def edit(db, doc):
+            for row in cleaned:
+                url = row['url']
+                if url.startswith('/api/appearance/media/'):
+                    media_id = url.rsplit('/', 1)[-1]
+                    if not store.run(db, 'SELECT id FROM em_admin_media WHERE id=?', (media_id,)).fetchone():
+                        raise ValueError('invalid_gallery')
+            doc['gallery'] = cleaned
+        try:
+            return jsonify(data.change(body['revision'], edit))
+        except ValueError:
+            return jsonify(error='invalid_gallery'), 400
 
     @bp.post('/api/admin/publish')
     def publish():
