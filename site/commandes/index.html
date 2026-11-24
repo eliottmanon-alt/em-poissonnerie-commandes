@@ -65,6 +65,15 @@ h1,h2,h3{font-family:Baskerville,"Palatino Linotype",Georgia,serif;font-weight:4
 
 .simple-panel{background:#fff}.simple-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:52px;align-items:center}.simple-grid img{width:100%;height:520px;object-fit:cover}.simple-grid h2{font-size:55px;margin:0}.simple-grid p{color:var(--muted);line-height:1.8;font-size:16px}.placeholder-box{margin-top:24px;padding:22px;border:1px dashed #bcc8cb;background:#fafcfc;font-size:14px;line-height:1.65}.catalog-tags{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}.catalog-tags span{padding:10px 13px;border:1px solid var(--line);font-size:12px;background:#fff}
 
+.promo-live-wrap{max-width:var(--max);margin:auto}.promo-live-head{margin-bottom:28px}.promo-live-head h2{font-size:55px;margin:0 0 8px}.promo-live-head p{color:var(--muted);margin:0}
+.promo-live-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}.promo-live-grid.one{grid-template-columns:minmax(0,760px);justify-content:center}
+.promo-live-card{background:#fff;border:1px solid var(--line);overflow:hidden;box-shadow:0 12px 30px rgba(20,55,70,.08)}
+.promo-live-photo{height:420px;background:#edf2f3}.promo-live-photo img{width:100%;height:100%;object-fit:cover}
+.promo-live-body{padding:28px 30px 32px}.promo-live-title{font-family:"Poiret One",sans-serif;font-size:38px;line-height:1.06;margin:0 0 15px}
+.promo-live-price{font-size:44px;font-weight:600;line-height:1;color:#c7352d;margin-bottom:12px}.promo-live-unit{font-size:17px;color:var(--muted);font-weight:400;margin-left:8px}
+.promo-live-origin{font-size:14px;color:var(--muted)}.promo-live-error{padding:24px;border:1px solid var(--line);background:#fff;color:var(--muted)}
+@media(max-width:800px){.promo-live-grid{grid-template-columns:1fr}.promo-live-photo{height:300px}.promo-live-title{font-size:31px}.promo-live-price{font-size:36px}}
+
 footer{background:var(--ink2);color:#d7e3e6;padding:52px 34px}.footer-inner{max-width:var(--max);margin:auto;display:flex;justify-content:space-between;align-items:end;gap:34px}footer img{width:105px;background:#fff;border-radius:50%}footer p{font-size:12px;line-height:1.7}.footer-links{display:flex;gap:18px;flex-wrap:wrap;font-size:11px;justify-content:flex-end}
 
 @media(max-width:1180px){.products-grid,.special-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.shop-layout{grid-template-columns:minmax(0,1fr) 360px}}
@@ -558,10 +567,16 @@ h1,h2,h3,h4,.nav-title,.fact strong,.maison-item strong {font-family:"Poiret One
 </div>
 </section>
 <section class="panel" id="promo">
-<div class="section simple-panel"><div class="wrap simple-grid">
-<img alt="Photo 88 - vignette promo" src="../assets/embedded/854de0917682e99a.jpg"/>
-<div><div class="eyebrow">Module 2 — Promo</div><h2>Les offres du moment.</h2><p>La vignette du module Promo utilise maintenant la photo 88.</p><div class="placeholder-box">Ici on pourra afficher : photo réelle, nom de l’offre, prix promo, quantité disponible, date limite et bouton « Commander ».</div></div>
-</div></div>
+<div class="section simple-panel">
+  <div class="promo-live-wrap">
+    <div class="promo-live-head">
+      <div class="eyebrow">Promotions du moment</div>
+      <h2>Nos offres du moment.</h2>
+      <p>Les promotions publiées depuis le logiciel EM Poissonnerie apparaissent ici automatiquement.</p>
+    </div>
+    <div class="promo-live-grid" id="promoLiveGrid"><div class="promo-live-error">Chargement des promotions…</div></div>
+  </div>
+</div>
 </section>
 
 <footer><div class="footer-inner"><div><img alt="EM Poissonnerie" src="../assets/embedded/4fea9353698d0494.png"/><p>EM Poissonnerie<br/>Halles de Rochefort</p></div><div class="footer-links"><a class="footer-link" href="/#histoire"><span>Notre histoire</span></a><a class="footer-link" href="/#gamme"><span>Notre gamme</span></a><a class="footer-link" href="/commandes/index.html"><span>Commandes en ligne</span></a><a class="footer-link" href="/#contact"><span>Contact</span></a><span>Avis Google</span></div></div></footer>
@@ -569,6 +584,43 @@ h1,h2,h3,h4,.nav-title,.fact strong,.maison-item strong {font-family:"Poiret One
 const products=[{"name": "Crevettes Équateur", "unit": "5 pcs", "price": 2.5, "key": "crevettes_eq", "cat": "crustaces", "tags": [], "per_person": true}, {"name": "Crevettes Madagascar", "unit": "5 pcs", "price": 4.0, "key": "crevettes_mad", "cat": "crustaces", "tags": [{"text": "Label Rouge", "type": "label"}], "per_person": true}, {"name": "Crevettes grises", "unit": "100 g", "price": 3.9, "key": "crevettes_grises", "cat": "crustaces", "tags": [{"text": "Pêche française", "type": "text"}], "per_person": true}, {"name": "Gambas", "unit": "1 pc", "price": 7.0, "key": "gambas", "cat": "crustaces", "tags": [], "per_person": true}, {"name": "Bulots cuits", "unit": "10 pcs", "price": 2.0, "key": "bulots", "cat": "coquillages", "tags": [{"text": "Cuisson maison", "type": "house"}], "per_person": true}, {"name": "Bigorneaux cuits", "unit": "100 g", "price": 2.5, "key": "bigorneaux", "cat": "coquillages", "tags": [{"text": "Cuisson maison", "type": "house"}], "per_person": true}, {"name": "Pinces de tourteaux", "unit": "2 pcs", "price": 8.0, "key": "pinces_tourteaux", "cat": "crustaces", "tags": [], "per_person": true}, {"name": "Langoustines cuites", "unit": "5 pcs", "price": 4.0, "key": "langoustines", "cat": "crustaces", "tags": [{"text": "Cuisson maison", "type": "house"}], "per_person": true}, {"name": "Tourteau cuit", "unit": "½ pièce", "price": 8.0, "key": "tourteau", "cat": "crustaces", "tags": [], "per_person": true}, {"name": "Palourdes", "unit": "6 pcs", "price": 2.0, "key": "palourdes", "cat": "coquillages", "tags": [], "per_person": true}, {"name": "Huîtres", "unit": "6 pcs", "price": 4.0, "key": "huitres", "cat": "coquillages", "tags": [], "per_person": true}, {"name": "Gravlax", "unit": "2 tranches", "price": 6.0, "key": "gravlax", "cat": "fume", "tags": [{"text": "Label Rouge", "type": "label"}, {"text": "Fait maison", "type": "house"}], "per_person": true}, {"name": "Saumon fumé", "unit": "1 tranche", "price": 6.0, "key": "saumon_fume", "cat": "fume", "tags": [{"text": "Label Rouge", "type": "label"}, {"text": "Fait maison", "type": "house"}], "per_person": true}, {"name": "Mayo citron", "unit": "1 pot", "price": 3.9, "key": "mayo_citron", "cat": "sauces", "tags": [{"text": "Fait maison", "type": "house"}], "per_person": false}, {"name": "Mayo salicorne", "unit": "1 pot", "price": 3.9, "key": "mayo_salicorne", "cat": "sauces", "tags": [{"text": "Fait maison", "type": "house"}], "per_person": false}, {"name": "Aïoli", "unit": "1 pot", "price": 3.9, "key": "aioli", "cat": "sauces", "tags": [{"text": "Fait maison", "type": "house"}], "per_person": false}, {"name": "Jean Dellac Sauvignon", "unit": "1 bouteille", "price": 7.9, "key": "vin", "cat": "extras", "tags": [], "per_person": false}, {"name": "Soupe de poissons artisanale", "unit": "1 bocal de 800 ml", "price": 7.9, "key": "soupe_poisson", "cat": "extras", "tags": [], "per_person": false}];
 const rows=[...document.querySelectorAll('.product-card[data-index]')];
 const guests=document.getElementById('guests');
+const promoModuleCard=document.querySelector('.module-card[data-module="promo"]');
+const promoPanel=document.getElementById('promo');
+const promoGrid=document.getElementById('promoLiveGrid');
+
+function escapePromoText(value){
+  return String(value ?? '').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+function promoPriceText(p){
+  const price=escapePromoText(p.price||'');
+  const unit=escapePromoText(p.unit||'');
+  return price + (unit ? '<span class="promo-live-unit">'+unit+'</span>' : '');
+}
+function renderPromotions(list){
+  const active=(Array.isArray(list)?list:[]).filter(p=>p&&p.active).sort((a,b)=>(+a.slot||99)-(+b.slot||99)).slice(0,2);
+  if(!active.length){
+    if(promoModuleCard) promoModuleCard.style.display='none';
+    if(promoPanel) promoPanel.style.display='none';
+    if(location.hash==='#promo') history.replaceState(null,'','#plateaux');
+    return;
+  }
+  if(promoModuleCard) promoModuleCard.style.display='';
+  if(promoPanel) promoPanel.style.display='';
+  promoGrid.classList.toggle('one',active.length===1);
+  promoGrid.innerHTML=active.map(p=>{
+    const photo=p.photo ? '<div class="promo-live-photo"><img src="'+p.photo+'" alt="'+escapePromoText(p.title||'Promotion')+'"></div>' : '';
+    return '<article class="promo-live-card">'+photo+
+      '<div class="promo-live-body"><h3 class="promo-live-title">'+escapePromoText(p.title||'Promotion')+'</h3>'+
+      '<div class="promo-live-price">'+promoPriceText(p)+'</div>'+
+      (p.origin?'<div class="promo-live-origin">Provenance : '+escapePromoText(p.origin)+'</div>':'')+
+      '</div></article>';
+  }).join('');
+}
+fetch('/api/promotions',{cache:'no-store'})
+  .then(r=>{if(!r.ok) throw new Error('HTTP '+r.status); return r.json();})
+  .then(data=>renderPromotions(data.promotions))
+  .catch(()=>{ if(promoModuleCard) promoModuleCard.style.display='none'; if(promoPanel) promoPanel.style.display='none'; });
+
 function money(v){return v.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' €'}
 
 function updateCart(){
