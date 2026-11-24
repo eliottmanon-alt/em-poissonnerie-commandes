@@ -24,7 +24,7 @@ SPECIALS = {'Araignée cuite ½', 'Homard cuit ½', 'Langouste cuite ½'}
 API_KEY = os.environ.get('EM_SITE_API_KEY', '').strip()
 store = Store()
 app = Flask(__name__, static_folder=None)
-app.config['MAX_CONTENT_LENGTH'] = 512 * 1024
+app.config['MAX_CONTENT_LENGTH'] = 4 * 1024 * 1024
 app.register_blueprint(contact)
 
 from appearance import render_images
@@ -95,6 +95,73 @@ def sync_catalog():
         return jsonify(ok=False, error='invalid_catalog'), 400
     store.save_catalog(payload)
     return jsonify(ok=True, products_received=len(payload['products']))
+
+
+def _normalize_promotions(payload):
+    rows = payload.get('promotions') if isinstance(payload, dict) else None
+    if rows is None and isinstance(payload, dict) and payload.get('id'):
+        current = store.promotions().get('promotions', [])
+        rows = [x for x in current if isinstance(x, dict) and x.get('id') != payload.get('id')] + [payload]
+    if not isinstance(rows, list) or len(rows) > 2:
+        raise ValueError('invalid_promotions')
+    normalized = []
+    seen = set()
+    for row in rows:
+        if not isinstance(row, dict):
+            raise ValueError('invalid_promotions')
+        promo_id = str(row.get('id') or '').strip()
+        if promo_id not in ('promo-1', 'promo-2') or promo_id in seen:
+            raise ValueError('invalid_promotions')
+        seen.add(promo_id)
+        slot = 1 if promo_id == 'promo-1' else 2
+        title = str(row.get('title') or '').strip()[:160]
+        price = str(row.get('price') or '').strip()[:80]
+        unit = str(row.get('unit') or '€/kg').strip()
+        if unit not in ('€/kg', 'le lot'):
+            raise ValueError('invalid_promotion_unit')
+        origin = str(row.get('origin') or '').strip()[:200]
+        photo = str(row.get('photo') or '').strip()
+        if photo and (not photo.startswith('data:image/') or ';base64,' not in photo or len(photo) > 3_500_000):
+            raise ValueError('invalid_promotion_photo')
+        active = bool(row.get('active'))
+        if active and (not title or not price):
+            raise ValueError('incomplete_promotion')
+        normalized.append({
+            'id': promo_id, 'slot': slot, 'active': active, 'title': title, 'price': price,
+            'unit': unit, 'origin': origin, 'photo': photo,
+            'updated_at': str(row.get('updated_at') or now())[:80]
+        })
+    for promo_id, slot in [('promo-1', 1), ('promo-2', 2)]:
+        if promo_id not in seen:
+            normalized.append({'id': promo_id, 'slot': slot, 'active': False, 'title': '', 'price': '',
+                               'unit': '€/kg', 'origin': '', 'photo': '', 'updated_at': now()})
+    normalized.sort(key=lambda x: x['slot'])
+    return {'promotions': normalized, 'updated_at': now()}
+
+
+@app.get('/api/promotions')
+def public_promotions():
+    if store.disabled:
+        return jsonify(promotions=[])
+    document = store.promotions()
+    rows = [x for x in document.get('promotions', []) if isinstance(x, dict) and x.get('active')]
+    rows.sort(key=lambda x: int(x.get('slot') or 99))
+    return jsonify(promotions=rows, updated_at=document.get('updated_at', ''))
+
+
+@app.route('/api/sync/promotions', methods=['PUT', 'POST'])
+def sync_promotions():
+    rejected = denied()
+    if rejected:
+        return rejected
+    payload = request.get_json(silent=True)
+    try:
+        document = _normalize_promotions(payload)
+    except ValueError as error:
+        return jsonify(ok=False, error=str(error)), 400
+    store.save_promotions(document)
+    return jsonify(ok=True, promotions_received=len(document['promotions']),
+                   active=sum(1 for x in document['promotions'] if x.get('active')))
 
 
 def validate(payload):
