@@ -164,6 +164,28 @@ def sync_promotions():
                    active=sum(1 for x in document['promotions'] if x.get('active')))
 
 
+def promotion_price(value):
+    text = str(value or '').strip().replace('\u202f', '').replace(' ', '').replace(',', '.')
+    match = re.search(r'(\d+(?:\.\d{1,2})?)', text)
+    if not match:
+        raise ValueError('invalid_promotion_price')
+    amount = Decimal(match.group(1))
+    if amount <= 0 or amount > Decimal('10000'):
+        raise ValueError('invalid_promotion_price')
+    return amount
+
+
+def active_promotions():
+    if store.disabled:
+        return {}
+    document = store.promotions()
+    return {
+        str(row.get('id')): row
+        for row in document.get('promotions', [])
+        if isinstance(row, dict) and row.get('active') and row.get('id')
+    }
+
+
 def validate(payload):
     if not isinstance(payload, dict):
         raise ValueError('invalid_order')
@@ -191,7 +213,7 @@ def validate(payload):
     if not re.fullmatch(r'(0[7-9]|1[0-3]):(00|30)', customer['pickupTime']):
         raise ValueError('invalid_pickup')
     items, special = order.get('items', []), order.get('specialRequests', [])
-    if not isinstance(items, list) or not isinstance(special, list) or len(items) > len(PRODUCTS) or len(special) > len(SPECIALS):
+    if not isinstance(items, list) or not isinstance(special, list) or len(items) > len(PRODUCTS) + 2 or len(special) > len(SPECIALS):
         raise ValueError('invalid_items')
     if not items and not special:
         raise ValueError('empty_order')
@@ -203,12 +225,40 @@ def validate(payload):
     total = Decimal('0')
     normalized = []
     seen = set()
+    promos = active_promotions()
     for item in items:
-        if not isinstance(item, dict) or not isinstance(item.get('name'), str):
+        if not isinstance(item, dict):
+            raise ValueError('invalid_items')
+        quantity = item.get('quantity')
+        if type(quantity) is not int or not 1 <= quantity <= 1000:
+            raise ValueError('invalid_items')
+
+        promo_id = str(item.get('promoId') or '').strip()
+        if promo_id:
+            promo = promos.get(promo_id)
+            if not promo or promo_id in seen:
+                raise ValueError('invalid_promotion')
+            seen.add(promo_id)
+            price = promotion_price(promo.get('price'))
+            line = price * quantity
+            total += line
+            unit = 'kg' if promo.get('unit') == '€/kg' else 'lot'
+            normalized.append({
+                'name': str(promo.get('title') or 'Promotion')[:160],
+                'unit': unit,
+                'price': float(price),
+                'quantity': quantity,
+                'lineTotal': float(line),
+                'promoId': promo_id,
+                'promotion': True,
+                'origin': str(promo.get('origin') or '')[:200]
+            })
+            continue
+
+        if not isinstance(item.get('name'), str):
             raise ValueError('invalid_items')
         product = PRODUCTS.get(item['name'])
-        quantity = item.get('quantity')
-        if not product or item['name'] in seen or type(quantity) is not int or not 1 <= quantity <= 1000:
+        if not product or item['name'] in seen:
             raise ValueError('invalid_items')
         seen.add(item['name'])
         price = Decimal(str(product['price']))
