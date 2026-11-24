@@ -230,11 +230,10 @@ def validate(payload):
         if not isinstance(item, dict):
             raise ValueError('invalid_items')
         quantity = item.get('quantity')
-        if type(quantity) is not int or not 1 <= quantity <= 1000:
-            raise ValueError('invalid_items')
-
         promo_id = str(item.get('promoId') or '').strip()
         if promo_id:
+            if type(quantity) not in (int, float) or isinstance(quantity, bool) or not 0 < quantity <= 1000:
+                raise ValueError('invalid_items')
             promo = promos.get(promo_id)
             if not promo or promo_id in seen:
                 raise ValueError('invalid_promotion')
@@ -255,6 +254,8 @@ def validate(payload):
             })
             continue
 
+        if type(quantity) is not int or not 1 <= quantity <= 1000:
+            raise ValueError('invalid_items')
         if not isinstance(item.get('name'), str):
             raise ValueError('invalid_items')
         product = PRODUCTS.get(item['name'])
