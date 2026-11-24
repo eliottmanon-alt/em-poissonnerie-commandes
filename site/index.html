@@ -192,6 +192,24 @@ h1,h2,h3,h4,.nav-title,.fact strong,.maison-item strong {font-family:"Poiret One
 .gamme-card .fait-maison-badge{width:58px;height:auto;object-fit:contain;display:block;margin:10px 0 12px;filter:none;}
 .gamme-card p{line-height:1.68;}
 @media(max-width:650px){.gamme-card .fait-maison-badge{width:50px;}}
+
+/* Galerie photos dynamique */
+.photo-gallery{background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.photo-gallery .section-head{margin-bottom:24px}
+.gallery-shell{position:relative}
+.gallery-track{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;padding:2px 2px 16px;scrollbar-width:thin;overscroll-behavior-inline:contain}
+.gallery-track::-webkit-scrollbar{height:8px}.gallery-track::-webkit-scrollbar-thumb{background:#cbd6d9;border-radius:999px}
+.gallery-item{flex:0 0 min(32vw,430px);height:300px;scroll-snap-align:start;border:0;padding:0;background:#eef2f3;overflow:hidden;cursor:zoom-in}
+.gallery-item img{width:100%;height:100%;object-fit:cover;transition:transform .25s ease}
+.gallery-item:hover img{transform:scale(1.025)}
+.gallery-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:3;width:46px;height:46px;border-radius:50%;border:1px solid rgba(20,55,70,.25);background:rgba(255,255,255,.94);color:var(--ink);font-size:24px;cursor:pointer;box-shadow:0 6px 18px rgba(20,55,70,.12)}
+.gallery-nav.prev{left:-18px}.gallery-nav.next{right:-18px}
+.gallery-lightbox{position:fixed;inset:0;z-index:9999;background:rgba(5,20,27,.92);display:none;align-items:center;justify-content:center;padding:28px}
+.gallery-lightbox.open{display:flex}.gallery-lightbox img{max-width:min(94vw,1600px);max-height:90vh;object-fit:contain;box-shadow:0 18px 60px rgba(0,0,0,.5)}
+.gallery-lightbox-close{position:fixed;top:18px;right:22px;width:46px;height:46px;border-radius:50%;border:1px solid rgba(255,255,255,.55);background:rgba(255,255,255,.08);color:#fff;font-size:28px;cursor:pointer}
+.gallery-empty{padding:28px;border:1px dashed var(--line);color:var(--muted);text-align:center;width:100%}
+@media(max-width:900px){.gallery-item{flex-basis:72vw;height:280px}.gallery-nav{display:none}}
+@media(max-width:650px){.gallery-item{flex-basis:84vw;height:240px}}
 </style>
 <script type="application/ld+json">
 {
@@ -287,6 +305,23 @@ h1,h2,h3,h4,.nav-title,.fact strong,.maison-item strong {font-family:"Poiret One
 </div>
 </div>
 </section>
+<section class="section photo-gallery" id="galerie">
+<div class="wrap">
+<div class="section-head">
+<div><div class="eyebrow">En images</div><h2>La poissonnerie au quotidien.</h2></div>
+<p>Arrivages, banc, préparations et produits : faites défiler les photos et cliquez pour les agrandir.</p>
+</div>
+<div class="gallery-shell">
+<button class="gallery-nav prev" id="galleryPrev" type="button" aria-label="Photos précédentes">‹</button>
+<div class="gallery-track" id="galleryTrack" aria-label="Galerie photos EM Poissonnerie"><div class="gallery-empty">Chargement des photos…</div></div>
+<button class="gallery-nav next" id="galleryNext" type="button" aria-label="Photos suivantes">›</button>
+</div>
+</div>
+</section>
+<div class="gallery-lightbox" id="galleryLightbox" aria-hidden="true">
+<button class="gallery-lightbox-close" id="galleryClose" type="button" aria-label="Fermer">×</button>
+<img id="galleryLightboxImage" alt="Photo agrandie EM Poissonnerie">
+</div>
 <section class="section commandes" id="commandes">
 <div class="wrap">
 <div class="section-head">
@@ -492,6 +527,35 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 </script>
 
+<script>
+(()=>{
+ const track=document.getElementById('galleryTrack');
+ const lightbox=document.getElementById('galleryLightbox');
+ const lightboxImg=document.getElementById('galleryLightboxImage');
+ const close=document.getElementById('galleryClose');
+ const prev=document.getElementById('galleryPrev');
+ const next=document.getElementById('galleryNext');
+ if(!track)return;
+ function open(src){lightboxImg.src=src;lightbox.classList.add('open');lightbox.setAttribute('aria-hidden','false');document.body.style.overflow='hidden'}
+ function shut(){lightbox.classList.remove('open');lightbox.setAttribute('aria-hidden','true');lightboxImg.removeAttribute('src');document.body.style.overflow=''}
+ function render(rows){
+   if(!Array.isArray(rows)||!rows.length){track.innerHTML='<div class="gallery-empty">Galerie en cours de préparation.</div>';return}
+   track.innerHTML='';
+   rows.forEach((row,i)=>{
+     const btn=document.createElement('button');btn.className='gallery-item';btn.type='button';btn.setAttribute('aria-label','Agrandir la photo '+(i+1));
+     const img=document.createElement('img');img.loading='lazy';img.decoding='async';img.alt='EM Poissonnerie — photo '+(i+1);img.src=row.url;
+     btn.appendChild(img);btn.addEventListener('click',()=>open(row.url));track.appendChild(btn);
+   });
+ }
+ fetch('/api/gallery',{cache:'no-store'}).then(r=>r.ok?r.json():Promise.reject()).then(d=>render(d.gallery)).catch(()=>render([]));
+ prev?.addEventListener('click',()=>track.scrollBy({left:-Math.max(320,track.clientWidth*.8),behavior:'smooth'}));
+ next?.addEventListener('click',()=>track.scrollBy({left:Math.max(320,track.clientWidth*.8),behavior:'smooth'}));
+ close?.addEventListener('click',shut);lightbox?.addEventListener('click',e=>{if(e.target===lightbox)shut()});
+ addEventListener('keydown',e=>{if(e.key==='Escape'&&lightbox?.classList.contains('open'))shut()});
+ let timer=setInterval(()=>{if(document.hidden||matchMedia('(prefers-reduced-motion: reduce)').matches)return;if(track.scrollWidth<=track.clientWidth)return;const nearEnd=track.scrollLeft+track.clientWidth>=track.scrollWidth-30;track.scrollTo({left:nearEnd?0:track.scrollLeft+Math.max(280,track.clientWidth*.55),behavior:'smooth'})},4500);
+ track.addEventListener('pointerdown',()=>{clearInterval(timer);timer=null},{once:true});
+})();
+</script>
 <script src="assets/admin/admin.js"></script>
 </body>
 </html>
