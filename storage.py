@@ -90,6 +90,16 @@ class Store:
             self.run(db, 'INSERT INTO em_settings (name,payload) VALUES (?,?) ON CONFLICT(name) DO UPDATE SET payload=excluded.payload',
                      ('catalog', json.dumps(value, ensure_ascii=False)))
 
+    def promotions(self):
+        with self.connect() as db:
+            row = self.run(db, 'SELECT payload FROM em_settings WHERE name=?', ('promotions',)).fetchone()
+            return json.loads(row[0]) if row else {'promotions': []}
+
+    def save_promotions(self, value):
+        with self.connect() as db:
+            self.run(db, 'INSERT INTO em_settings (name,payload) VALUES (?,?) ON CONFLICT(name) DO UPDATE SET payload=excluded.payload',
+                     ('promotions', json.dumps(value, ensure_ascii=False)))
+
     def pending_mail(self, limit=5):
         with self.connect() as db:
             rows = self.run(db, "SELECT DISTINCT o.payload FROM em_orders o JOIN em_order_mail m ON o.id=m.order_id WHERE m.state='pending' AND (m.first_attempt IS NULL OR m.first_attempt > ?) ORDER BY o.payload LIMIT ?", (time.time() - 23 * 3600, limit)).fetchall()
