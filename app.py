@@ -422,6 +422,20 @@ def static_site(name):
 
 payment_store = payments.register_payments(app, store, validate, make_order_record)
 
+# Temporary startup diagnostic: only non-sensitive promotion metadata.
+try:
+    _promo_doc = store.promotions()
+    _promo_rows = []
+    for _p in _promo_doc.get('promotions', []) if isinstance(_promo_doc, dict) else []:
+        if isinstance(_p, dict):
+            _promo_rows.append({
+                'id': _p.get('id'), 'active': bool(_p.get('active')), 'title': _p.get('title'),
+                'start_date': _p.get('start_date'), 'end_date': _p.get('end_date')
+            })
+    app.logger.warning('PROMO_DIAG %s', json.dumps(_promo_rows, ensure_ascii=False))
+except Exception as _promo_diag_error:
+    app.logger.warning('PROMO_DIAG_ERROR %s', type(_promo_diag_error).__name__)
+
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=int(os.environ.get('PORT', '8765')))
