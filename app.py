@@ -152,10 +152,18 @@ def _normalize_promotions(payload):
 def promotion_is_current(row):
     if not isinstance(row, dict) or not row.get('active'):
         return False
+    start_text = str(row.get('start_date') or '').strip()
+    end_text = str(row.get('end_date') or '').strip()
+    # Backward compatibility: promotions published by older desktop versions
+    # had no validity dates. Keep them visible until they are republished with dates.
+    if not start_text and not end_text:
+        return True
+    if not start_text or not end_text:
+        return False
     try:
         today = datetime.now(ZoneInfo('Europe/Paris')).date()
-        start_day = datetime.strptime(str(row.get('start_date') or ''), '%Y-%m-%d').date()
-        end_day = datetime.strptime(str(row.get('end_date') or ''), '%Y-%m-%d').date()
+        start_day = datetime.strptime(start_text, '%Y-%m-%d').date()
+        end_day = datetime.strptime(end_text, '%Y-%m-%d').date()
         return start_day <= today <= end_day
     except ValueError:
         return False
