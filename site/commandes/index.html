@@ -74,7 +74,8 @@ h1,h2,h3{font-family:Baskerville,"Palatino Linotype",Georgia,serif;font-weight:4
 .promo-live-body{position:relative;z-index:2;padding:30px 32px 34px;background:linear-gradient(180deg,#fff,#fffaf0)}
 .promo-live-title{font-family:"Poiret One",sans-serif;font-size:42px;line-height:1.02;margin:0 0 12px}
 .promo-live-price{font-size:52px;font-weight:700;line-height:1;color:#c7352d;margin:8px 0 13px}.promo-live-unit{font-size:18px;color:var(--ink);font-weight:500;margin-left:8px}
-.promo-live-origin{font-size:14px;color:var(--muted);margin-bottom:20px}
+.promo-live-origin{font-size:14px;color:var(--muted);margin-bottom:8px}
+.promo-live-dates{display:inline-flex;align-items:center;gap:8px;margin:0 0 20px;padding:8px 11px;background:#fff4d9;border:1px solid #ead49a;color:#7c6429;font-size:12px;font-weight:500}
 .promo-order-row{display:flex;align-items:end;justify-content:space-between;gap:18px;padding-top:20px;border-top:1px solid #eadfca}
 .promo-qty-wrap label{display:block;font-size:11px;color:var(--muted);margin-bottom:7px}.promo-qty{display:flex;align-items:center;gap:8px}.promo-qty button{width:42px;height:42px;border:1px solid #c9d2d5;background:#fff;color:var(--ink);font-size:24px;cursor:pointer}.promo-qty input{width:86px;height:42px;border:1px solid #c9d2d5;text-align:center;font-weight:600;color:var(--ink)}
 .promo-buy{border:0;background:var(--ink);color:#fff;padding:14px 20px;font-size:13px;cursor:pointer;min-width:190px}.promo-buy:hover{background:var(--ink2)}
@@ -627,6 +628,7 @@ function renderPromotions(list){
       '<div class="promo-live-body"><h3 class="promo-live-title">'+escapePromoText(p.title||'Promotion')+'</h3>'+
       '<div class="promo-live-price">'+promoPriceText(p)+'</div>'+
       (p.origin?'<div class="promo-live-origin">Provenance : '+escapePromoText(p.origin)+'</div>':'')+
+      (p.start_date&&p.end_date?'<div class="promo-live-dates">Valable du '+new Date(p.start_date+'T12:00:00').toLocaleDateString('fr-FR')+' au '+new Date(p.end_date+'T12:00:00').toLocaleDateString('fr-FR')+'</div>':'')+
       '<div class="promo-order-row"><div class="promo-qty-wrap"><label>'+promoUnitLabel(p)+'</label><div class="promo-qty">'+
       '<button type="button" class="promo-minus">−</button><input class="promo-qty-input" type="number" min="'+step+'" step="'+step+'" value="'+start+'"><button type="button" class="promo-plus">+</button>'+
       '</div></div><button type="button" class="promo-buy">Commander cette promo</button></div>'+
