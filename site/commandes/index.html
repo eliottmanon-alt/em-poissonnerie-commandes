@@ -608,9 +608,10 @@ function promoUnitLabel(p){return p.unit==='€/kg'?'Quantité (kg)':'Nombre de 
 function renderPromotions(list){
   const active=(Array.isArray(list)?list:[]).filter(p=>p&&p.active).sort((a,b)=>(+a.slot||99)-(+b.slot||99)).slice(0,2);
   if(!active.length){
-    if(promoModuleCard) promoModuleCard.style.display='none';
-    if(promoPanel) promoPanel.style.display='none';
-    if(location.hash==='#promo') history.replaceState(null,'','#plateaux');
+    if(promoModuleCard) promoModuleCard.style.display='';
+    if(promoPanel) promoPanel.style.display='';
+    promoGrid.classList.add('one');
+    promoGrid.innerHTML='<div class="promo-live-error">Aucune promotion en cours pour le moment.</div>';
     return;
   }
   if(promoModuleCard) promoModuleCard.style.display='';
@@ -660,7 +661,7 @@ function orderPromotion(p,quantity){
 fetch('/api/promotions',{cache:'no-store'})
   .then(r=>{if(!r.ok) throw new Error('HTTP '+r.status); return r.json();})
   .then(data=>renderPromotions(data.promotions))
-  .catch(()=>{ if(promoModuleCard) promoModuleCard.style.display='none'; if(promoPanel) promoPanel.style.display='none'; });
+  .catch(()=>{ if(promoModuleCard) promoModuleCard.style.display=''; if(promoPanel) promoPanel.style.display=''; if(promoGrid){promoGrid.classList.add('one');promoGrid.innerHTML='<div class="promo-live-error">Les promotions sont momentanément indisponibles.</div>';} });
 
 function money(v){return v.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' €'}
 
