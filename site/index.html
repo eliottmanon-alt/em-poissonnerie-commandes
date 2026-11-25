@@ -97,10 +97,22 @@ nav{display:grid;grid-template-columns:1.02fr 1.05fr .93fr}
 .maison-item span{font-size:11px;color:#c8d7dc}
 
 .reviews{background:#fff}
-.review-shell{border:1px solid var(--line);padding:32px;display:grid;grid-template-columns:1fr auto;gap:30px;align-items:center}
-.review-shell h3{font-size:34px;margin:0 0 7px}
-.review-shell p{color:var(--muted);font-size:13px;line-height:1.65;margin:0}
-.review-btn{border:1px solid var(--ink);padding:13px 17px;font-size:12px;background:#fff;white-space:nowrap}
+.review-shell{border:1px solid var(--line);padding:34px;display:grid;grid-template-columns:1fr auto;gap:30px;align-items:center}
+.review-shell h3{font-size:40px;margin:0 0 7px}
+.review-shell p{color:var(--muted);font-size:14px;line-height:1.65;margin:0}
+.review-summary{display:flex;align-items:center;gap:14px;margin-top:16px;flex-wrap:wrap}
+.review-score{font-family:"Poiret One",sans-serif;font-size:42px;line-height:1}
+.review-stars{color:#e0a629;font-size:22px;letter-spacing:2px}
+.review-count{font-size:12px;color:var(--muted)}
+.review-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.review-btn{border:1px solid var(--ink);padding:13px 17px;font-size:12px;background:#fff;white-space:nowrap;cursor:pointer}
+.review-btn.primary{background:var(--ink);color:#fff}
+.review-list{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:4px}
+.review-card{border:1px solid var(--line);background:#fff;padding:18px;min-height:160px}
+.review-card-head{display:flex;justify-content:space-between;gap:12px;align-items:start;margin-bottom:10px}
+.review-card strong{font-size:14px}.review-card .stars{color:#e0a629;letter-spacing:1px}
+.review-card p{font-size:13px;line-height:1.65}.review-card small{display:block;color:var(--muted);font-size:11px;margin-top:10px}
+@media(max-width:900px){.review-shell{grid-template-columns:1fr}.review-actions{justify-content:flex-start}.review-list{grid-template-columns:1fr}}
 
 .contact-section{background:#f8faf9}
 .contact-grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:40px;align-items:stretch}
@@ -357,11 +369,22 @@ h1,h2,h3,h4,.nav-title,.fact strong,.maison-item strong {font-family:"Poiret One
 <img alt="Produits maison EM Poissonnerie" src="assets/embedded/96a873abf524ab09.jpg"/>
 </div>
 </section>
-<section class="section reviews">
+<section class="section reviews" id="avis">
 <div class="wrap">
 <div class="review-shell">
-<div><div class="eyebrow">Avis clients</div><h3>Vos retours comptent.</h3><p>Cette zone est prévue pour afficher les vrais avis du profil Google EM Poissonnerie. Aucun faux avis n’est intégré dans la démo.</p></div>
-<button class="review-btn" onclick="alert('À connecter au profil Google Business EM Poissonnerie.')" type="button">Voir les avis Google</button>
+<div>
+<div class="eyebrow">Avis Google</div>
+<h3>Merci pour vos retours.</h3>
+<p>Retrouvez les avis laissés sur la fiche Google EM Poissonnerie.</p>
+<div class="review-summary" id="googleReviewSummary">
+<span class="review-score">5,0</span><span class="review-stars" aria-label="5 étoiles">★★★★★</span><span class="review-count">7 avis Google</span>
+</div>
+</div>
+<div class="review-actions">
+<a class="review-btn primary" id="googleReviewsLink" href="https://www.google.com/maps/search/?api=1&query=EM%20Poissonnerie%20Rochefort&query_place_id=ChIJozMvSiFBAUgR1ufCzTSG1rI" target="_blank" rel="noopener">Voir les avis Google</a>
+<a class="review-btn" id="googleWriteReviewLink" href="https://search.google.com/local/writereview?placeid=ChIJozMvSiFBAUgR1ufCzTSG1rI" target="_blank" rel="noopener">Laisser un avis</a>
+</div>
+<div class="review-list" id="googleReviewList" hidden></div>
 </div>
 </div>
 </section>
@@ -404,7 +427,7 @@ h1,h2,h3,h4,.nav-title,.fact strong,.maison-item strong {font-family:"Poiret One
 <footer>
 <div class="footer-inner">
 <div><img alt="EM Poissonnerie" src="assets/embedded/4fea9353698d0494.png"/><p>EM Poissonnerie<br/>Halles de Rochefort</p></div>
-<div class="footer-links"><a class="footer-link" href="/#histoire"><span>Notre histoire</span></a><a class="footer-link" href="/#gamme"><span>Notre gamme</span></a><a class="footer-link" href="/commandes/index.html"><span>Commandes en ligne</span></a><a class="footer-link" href="/#contact"><span>Contact</span></a><span>Avis Google</span></div>
+<div class="footer-links"><a class="footer-link" href="/#histoire"><span>Notre histoire</span></a><a class="footer-link" href="/#gamme"><span>Notre gamme</span></a><a class="footer-link" href="/commandes/index.html"><span>Commandes en ligne</span></a><a class="footer-link" href="/#contact"><span>Contact</span></a><a class="footer-link" href="/#avis"><span>Avis Google</span></a></div>
 </div>
 </footer>
 <script>
@@ -527,6 +550,36 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 </script>
 
+<script>
+(()=>{
+ const summary=document.getElementById('googleReviewSummary');
+ const list=document.getElementById('googleReviewList');
+ const reviewsLink=document.getElementById('googleReviewsLink');
+ const writeLink=document.getElementById('googleWriteReviewLink');
+ if(!summary)return;
+ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ fetch('/api/google-reviews',{cache:'no-store'})
+   .then(r=>r.ok?r.json():Promise.reject())
+   .then(data=>{
+     if(data.maps_url)reviewsLink.href=data.maps_url;
+     if(data.write_review_url)writeLink.href=data.write_review_url;
+     if(Number.isFinite(Number(data.rating))&&Number.isFinite(Number(data.review_count))){
+       const rating=Number(data.rating);
+       summary.innerHTML='<span class="review-score">'+rating.toLocaleString('fr-FR',{minimumFractionDigits:1,maximumFractionDigits:1})+'</span>'+
+         '<span class="review-stars" aria-label="'+esc(rating)+' étoiles">★★★★★</span>'+
+         '<span class="review-count">'+Number(data.review_count).toLocaleString('fr-FR')+' avis Google</span>';
+     }
+     if(data.connected&&Array.isArray(data.reviews)&&data.reviews.length){
+       list.hidden=false;
+       list.innerHTML=data.reviews.slice(0,3).map(r=>{
+         const stars='★'.repeat(Math.max(0,Math.min(5,Number(r.rating)||0)))+'☆'.repeat(Math.max(0,5-Math.min(5,Number(r.rating)||0)));
+         return '<article class="review-card"><div class="review-card-head"><strong>'+esc(r.author||'Client Google')+'</strong><span class="stars">'+stars+'</span></div>'+
+           '<p>'+esc(r.text||'')+'</p>'+(r.relative_time?'<small>'+esc(r.relative_time)+'</small>':'')+'</article>';
+       }).join('');
+     }
+   }).catch(()=>{});
+})();
+</script>
 <script>
 (()=>{
  const track=document.getElementById('galleryTrack');
