@@ -123,20 +123,42 @@ def _normalize_promotions(payload):
         photo = str(row.get('photo') or '').strip()
         if photo and (not photo.startswith('data:image/') or ';base64,' not in photo or len(photo) > 3_500_000):
             raise ValueError('invalid_promotion_photo')
+        start_date = str(row.get('start_date') or '').strip()
+        end_date = str(row.get('end_date') or '').strip()
+        if start_date or end_date:
+            try:
+                start_day = datetime.strptime(start_date, '%Y-%m-%d').date()
+                end_day = datetime.strptime(end_date, '%Y-%m-%d').date()
+            except ValueError:
+                raise ValueError('invalid_promotion_dates')
+            if end_day < start_day:
+                raise ValueError('invalid_promotion_dates')
         active = bool(row.get('active'))
-        if active and (not title or not price):
+        if active and (not title or not price or not start_date or not end_date):
             raise ValueError('incomplete_promotion')
         normalized.append({
             'id': promo_id, 'slot': slot, 'active': active, 'title': title, 'price': price,
-            'unit': unit, 'origin': origin, 'photo': photo,
+            'unit': unit, 'origin': origin, 'photo': photo, 'start_date': start_date, 'end_date': end_date,
             'updated_at': str(row.get('updated_at') or now())[:80]
         })
     for promo_id, slot in [('promo-1', 1), ('promo-2', 2)]:
         if promo_id not in seen:
             normalized.append({'id': promo_id, 'slot': slot, 'active': False, 'title': '', 'price': '',
-                               'unit': '€/kg', 'origin': '', 'photo': '', 'updated_at': now()})
+                               'unit': '€/kg', 'origin': '', 'photo': '', 'start_date': '', 'end_date': '', 'updated_at': now()})
     normalized.sort(key=lambda x: x['slot'])
     return {'promotions': normalized, 'updated_at': now()}
+
+
+def promotion_is_current(row):
+    if not isinstance(row, dict) or not row.get('active'):
+        return False
+    try:
+        today = datetime.now(ZoneInfo('Europe/Paris')).date()
+        start_day = datetime.strptime(str(row.get('start_date') or ''), '%Y-%m-%d').date()
+        end_day = datetime.strptime(str(row.get('end_date') or ''), '%Y-%m-%d').date()
+        return start_day <= today <= end_day
+    except ValueError:
+        return False
 
 
 @app.get('/api/promotions')
@@ -144,7 +166,7 @@ def public_promotions():
     if store.disabled:
         return jsonify(promotions=[])
     document = store.promotions()
-    rows = [x for x in document.get('promotions', []) if isinstance(x, dict) and x.get('active')]
+    rows = [x for x in document.get('promotions', []) if promotion_is_current(x)]
     rows.sort(key=lambda x: int(x.get('slot') or 99))
     return jsonify(promotions=rows, updated_at=document.get('updated_at', ''))
 
@@ -182,7 +204,7 @@ def active_promotions():
     return {
         str(row.get('id')): row
         for row in document.get('promotions', [])
-        if isinstance(row, dict) and row.get('active') and row.get('id')
+        if promotion_is_current(row) and row.get('id')
     }
 
 
