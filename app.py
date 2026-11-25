@@ -174,7 +174,13 @@ def public_promotions():
     if store.disabled:
         return jsonify(promotions=[])
     document = store.promotions()
-    rows = [x for x in document.get('promotions', []) if promotion_is_current(x)]
+    rows = []
+    for row in document.get('promotions', []):
+        if not isinstance(row, dict) or not row.get('active'):
+            continue
+        item = dict(row)
+        item['current'] = promotion_is_current(row)
+        rows.append(item)
     rows.sort(key=lambda x: int(x.get('slot') or 99))
     return jsonify(promotions=rows, updated_at=document.get('updated_at', ''))
 
@@ -421,21 +427,6 @@ def static_site(name):
 
 
 payment_store = payments.register_payments(app, store, validate, make_order_record)
-
-# Temporary startup diagnostic: only non-sensitive promotion metadata.
-try:
-    _promo_doc = store.promotions()
-    _promo_rows = []
-    for _p in _promo_doc.get('promotions', []) if isinstance(_promo_doc, dict) else []:
-        if isinstance(_p, dict):
-            _promo_rows.append({
-                'id': _p.get('id'), 'active': bool(_p.get('active')), 'title': _p.get('title'),
-                'start_date': _p.get('start_date'), 'end_date': _p.get('end_date')
-            })
-    app.logger.warning('PROMO_DIAG %s', json.dumps(_promo_rows, ensure_ascii=False))
-except Exception as _promo_diag_error:
-    app.logger.warning('PROMO_DIAG_ERROR %s', type(_promo_diag_error).__name__)
-
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=int(os.environ.get('PORT', '8765')))
