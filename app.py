@@ -5,6 +5,9 @@ import os
 import re
 import secrets
 import unicodedata
+import urllib.parse
+import urllib.request
+import time
 from datetime import datetime
 from decimal import Decimal
 from pathlib import Path
@@ -22,6 +25,8 @@ SEED = json.loads((BASE / 'catalog_seed.json').read_text(encoding='utf-8'))
 PRODUCTS = {p['name']: p for p in SEED['products']}
 SPECIALS = {'Araignée cuite ½', 'Homard cuit ½', 'Langouste cuite ½'}
 API_KEY = os.environ.get('EM_SITE_API_KEY', '').strip()
+GOOGLE_PLACE_ID = 'ChIJozMvSiFBAUgR1ufCzTSG1rI'
+GOOGLE_REVIEWS_CACHE = {'at': 0.0, 'data': None}
 store = Store()
 app = Flask(__name__, static_folder=None)
 app.config['MAX_CONTENT_LENGTH'] = 4 * 1024 * 1024
@@ -377,6 +382,62 @@ def status(order_id):
     if not store.set_status(order_id, value, now()):
         return jsonify(ok=False, error='not_found'), 404
     return jsonify(ok=True, id=order_id, status=value)
+
+
+@app.get('/api/google-reviews')
+def google_reviews():
+    maps_url = ('https://www.google.com/maps/search/?api=1&query='
+                + urllib.parse.quote('EM Poissonnerie Rochefort')
+                + '&query_place_id=' + GOOGLE_PLACE_ID)
+    write_url = 'https://search.google.com/local/writereview?placeid=' + GOOGLE_PLACE_ID
+    key = os.environ.get('GOOGLE_PLACES_API_KEY', '').strip()
+    fallback = {
+        'ok': True, 'connected': False, 'place_id': GOOGLE_PLACE_ID,
+        'maps_url': maps_url, 'write_review_url': write_url, 'reviews': []
+    }
+    if not key:
+        return jsonify(fallback)
+
+    cached = GOOGLE_REVIEWS_CACHE.get('data')
+    if cached and time.time() - GOOGLE_REVIEWS_CACHE.get('at', 0) < 1800:
+        return jsonify(cached)
+
+    url = ('https://places.googleapis.com/v1/places/' + GOOGLE_PLACE_ID
+           + '?fields=displayName,rating,userRatingCount,reviews,googleMapsUri'
+           + '&languageCode=fr')
+    req = urllib.request.Request(url, headers={'X-Goog-Api-Key': key, 'Accept': 'application/json'})
+    try:
+        with urllib.request.urlopen(req, timeout=8) as response:
+            raw = json.loads(response.read().decode('utf-8'))
+        reviews = []
+        for item in (raw.get('reviews') or [])[:5]:
+            author = item.get('authorAttribution') or {}
+            text_obj = item.get('text') or {}
+            reviews.append({
+                'author': str(author.get('displayName') or 'Client Google')[:120],
+                'author_url': str(author.get('uri') or '')[:500],
+                'photo_url': str(author.get('photoUri') or '')[:500],
+                'rating': item.get('rating'),
+                'text': str(text_obj.get('text') or '')[:1200],
+                'relative_time': str(item.get('relativePublishTimeDescription') or '')[:120],
+                'publish_time': str(item.get('publishTime') or '')[:80],
+            })
+        data = {
+            'ok': True, 'connected': True, 'place_id': GOOGLE_PLACE_ID,
+            'name': ((raw.get('displayName') or {}).get('text') or 'EM Poissonnerie'),
+            'rating': raw.get('rating'),
+            'review_count': raw.get('userRatingCount'),
+            'reviews': reviews,
+            'maps_url': raw.get('googleMapsUri') or maps_url,
+            'write_review_url': write_url,
+        }
+        GOOGLE_REVIEWS_CACHE.update(at=time.time(), data=data)
+        return jsonify(data)
+    except Exception:
+        app.logger.warning('Google reviews temporarily unavailable')
+        if cached:
+            return jsonify(cached)
+        return jsonify(fallback)
 
 
 @app.get('/robots.txt')
