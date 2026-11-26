@@ -33,15 +33,21 @@
     try { localStorage.setItem('emPoissonnerieSubmission',JSON.stringify(requestState)); } catch (_) {}
   }
   const showError = message => { error.textContent = message; error.hidden = false; };
-  const showSuccess = (id, payment) => {
+  const showSuccess = (id, payment, isTest = false) => {
     success.querySelector('strong').textContent = payment ? 'Acompte payé — commande confirmée' : 'Commande enregistrée ✓';
     success.querySelector('span').textContent = 'Votre commande a bien été transmise à EM Poissonnerie. Référence : ' + id + '.' + (payment ? ' Acompte payé : ' + moneyCents(payment.deposit_paid_cents) + '. Solde au retrait : ' + moneyCents(payment.balance_due_cents) + ', par carte bancaire ou en espèces. La confirmation par e-mail est envoyée après validation du paiement.' : '');
+    if (isTest) {
+      success.querySelector('strong').textContent = 'Commande TEST enregistrée — NE PAS PRÉPARER';
+      success.querySelector('span').textContent = 'Aucun paiement effectué. E-mails de test demandés et commande disponible pour la synchronisation du logiciel. Référence : ' + id + '.';
+    }
+    if (notice) notice.textContent = isTest ? 'Commande de test, sans acompte ni solde à encaisser.' : 'Votre commande est confirmée. Conservez votre référence.';
     success.classList.add('show');
     button.disabled = true;
     button.textContent = payment ? 'Acompte payé ✓' : 'Commande validée ✓';
+    if (isTest) button.textContent = 'Commande TEST enregistrée ✓';
     button.style.opacity = '.72';
     try {
-      localStorage.setItem('emPoissonnerieFinalOrder',JSON.stringify({order,customer,order_id:id,payment,confirmedAt:new Date().toISOString()}));
+      localStorage.setItem('emPoissonnerieFinalOrder',JSON.stringify({order,customer,order_id:id,payment,is_test:isTest,confirmedAt:new Date().toISOString()}));
       clearCart();
     } catch (_) {}
     if (payment) {
@@ -72,9 +78,12 @@
   if (params.get('session_id')) { checkPayment(params.get('session_id')); return; }
   let receipt;
   try { receipt = JSON.parse(localStorage.getItem('emPoissonnerieFinalOrder') || 'null'); } catch (_) {}
-  if (!localStorage.getItem('emPoissonnerieOrder') && receipt?.order_id) { showSuccess(receipt.order_id,receipt.payment); return; }
+  if (!localStorage.getItem('emPoissonnerieOrder') && receipt?.order_id) { showSuccess(receipt.order_id,receipt.payment,receipt.is_test); return; }
   if (requestState.orderId) { showSuccess(requestState.orderId); return; }
   let config;
+  let testOrder = false;
+  let testCsrf = '';
+  const testIdentity = String(customer.lastName || '').trim().toUpperCase() === 'TEST' && String(customer.email || '').trim().toLowerCase() === 'eliott.manon@empoissonnerie.com';
   button.disabled = true;
   button.textContent = 'Chargement…';
   async function initialize() {
@@ -82,6 +91,23 @@
       const response = await fetch('/api/payments/config',{cache:'no-store',signal:AbortSignal.timeout(15000)});
       config = await response.json();
       if (!response.ok || !config.ok) throw new Error();
+      if (testIdentity) {
+        const authResponse = await fetch('/api/admin/session', {cache:'no-store', signal:AbortSignal.timeout(15000)});
+        const auth = await authResponse.json();
+        if (!authResponse.ok || !auth.authenticated || !auth.csrf) {
+          button.textContent = 'Connexion Admin requise pour le test';
+          showError('Pour une commande TEST sans paiement, connectez-vous à ADMIN puis rechargez cette page.');
+          return;
+        }
+        testOrder = true;
+        testCsrf = auth.csrf;
+        info.hidden = false;
+        info.textContent = 'MODE TEST — NE PAS PRÉPARER. Aucun débit Stripe. La commande sera marquée TEST dans les e-mails et lors de la synchronisation du logiciel.';
+        button.textContent = 'Envoyer la commande TEST sans paiement';
+        if (notice) notice.textContent = 'Réservé à votre session Admin et à votre adresse professionnelle.';
+        button.disabled = false;
+        return;
+      }
       if (config.enabled) {
         info.hidden = false;
         const total = Math.round(Number(order.total || 0) * 100);
@@ -114,11 +140,11 @@
     if (button.disabled || !config) return;
     button.disabled = true;
     const label = button.textContent;
-    button.textContent = config.enabled ? 'Ouverture du paiement sécurisé…' : 'Enregistrement en cours…';
+    button.textContent = testOrder ? 'Enregistrement de la commande TEST…' : config.enabled ? 'Ouverture du paiement sécurisé…' : 'Enregistrement en cours…';
     error.hidden = true;
     try {
-      const response = await fetch(config.enabled ? '/api/payments/checkout' : '/api/orders', {
-        method:'POST',headers:{'Content-Type':'application/json','Idempotency-Key':requestState.requestId},
+      const response = await fetch(testOrder ? '/api/admin/test-order' : config.enabled ? '/api/payments/checkout' : '/api/orders', {
+        method:'POST',headers:{'Content-Type':'application/json','Idempotency-Key':requestState.requestId,...(testOrder ? {'X-CSRF-Token':testCsrf} : {})},
         body:JSON.stringify({order,customer}),signal:AbortSignal.timeout(25000)
       });
       const result = await response.json();
@@ -128,6 +154,11 @@
           try { localStorage.setItem('emPoissonnerieSubmission',JSON.stringify(requestState)); } catch (_) {}
         }
         throw new Error(result.message || 'La commande n’a pas pu être validée. Réessayez.');
+      }
+      if (testOrder) {
+        if (!result.is_test || !result.order_id) throw new Error('Confirmation de test manquante.');
+        showSuccess(result.order_id, undefined, true);
+        return;
       }
       if (config.enabled) {
         if (result.paid && result.session_id) { await checkPayment(result.session_id); return; }

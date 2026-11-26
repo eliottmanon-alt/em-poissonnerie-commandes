@@ -159,3 +159,17 @@ Render actuel à un worker ; le distribuer avant une mise à l’échelle. Prév
 périodique des anciennes tentatives non payées selon la politique de conservation.
 Les remboursements et changements de prix des pièces spéciales restent des opérations
 à traiter séparément lors de la liaison du compte.
+
+## Commandes de test réservées à l’Admin
+
+Dans le même navigateur, se connecter à l’Admin, puis passer une commande avec
+le nom exact `TEST` et l’adresse `eliott.manon@empoissonnerie.com`. Le récapitulatif
+propose « Envoyer la commande TEST sans paiement ». Aucune session Stripe n’est
+créée. La commande porte `is_test: true`, la source `admin-test-order` et le statut
+de paiement `test_no_charge`. Le nom, le commentaire et les deux e-mails indiquent
+« TEST — NE PAS PRÉPARER ». La commande est disponible dans la synchronisation
+habituelle du logiciel ; cette modification ne change pas ses calculs statistiques.
+
+L’API exige la session Admin, son jeton CSRF et l’identité de test. Les commandes
+client restent soumises à l’acompte configuré. Les reprises d’un même envoi sont
+dédupliquées, y compris pour les e-mails.

@@ -41,6 +41,8 @@ def messages(record):
     if customer.get('comment'):
         lines += ['', 'Commentaire : ' + customer['comment']]
     lines += ['', 'Pour toute question : ' + PRO_EMAIL]
+    if record.get('is_test'):
+        lines = ['TEST — NE PAS PRÉPARER — AUCUN PAIEMENT RÉEL', 'Cette commande est un essai. Aucun acompte ni solde ne doit être encaissé.', ''] + lines
     text = '\n'.join(lines)
     sender = settings()[1]
     result = {'professional': {'from': sender, 'to': [PRO_EMAIL],
@@ -50,6 +52,9 @@ def messages(record):
         result['professional']['reply_to'] = customer['email']
         result['customer'] = {'from': sender, 'to': [customer['email']], 'reply_to': PRO_EMAIL,
                               'subject': 'Votre commande EM Poissonnerie — ' + record['id'], 'text': text}
+    if record.get('is_test'):
+        for message in result.values():
+            message['subject'] = '[TEST — NE PAS PRÉPARER] ' + message['subject']
     return result
 
 

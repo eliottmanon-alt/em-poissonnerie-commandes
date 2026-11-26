@@ -13,7 +13,7 @@ from decimal import Decimal
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-from flask import Flask, jsonify, request, send_from_directory, redirect
+from flask import Flask, jsonify, request, send_from_directory, redirect, session
 from storage import Store, StorageUnavailable
 import order_mail
 import payments
@@ -348,6 +348,50 @@ def create_order():
         return jsonify(ok=False, error='storage_unavailable', message='Le serveur ne peut pas enregistrer la commande. Réessayez dans un instant.'), 503
     email_sent = order_mail.deliver(store, saved, app.logger)
     return jsonify(ok=True, order_id=saved['id'], status=saved['status'], email_sent=email_sent), (201 if created else 200)
+
+
+@app.post('/api/admin/test-order')
+def create_admin_test_order():
+    # AdminSessions initializes the signing key for every /api/admin/ request.
+    if not session.get('admin'):
+        return jsonify(ok=False, error='unauthorized'), 401
+    if not secrets.compare_digest(request.headers.get('X-CSRF-Token', ''), session.get('csrf', 'missing')):
+        return jsonify(ok=False, error='invalid_csrf'), 403
+    expected_origin = ('https://' + request.host) if store.url else request.host_url.rstrip('/')
+    if request.headers.get('Origin') and request.headers['Origin'] != expected_origin:
+        return jsonify(ok=False, error='invalid_origin'), 403
+    if not request.is_json:
+        return jsonify(ok=False, error='json_required'), 415
+    try:
+        order, customer = validate(request.get_json(silent=True))
+    except ValueError:
+        return jsonify(ok=False, error='invalid_order', message='Vérifiez la sélection et les coordonnées.'), 400
+    if (customer['lastName'].strip().casefold() != 'test'
+            or customer.get('email', '').strip().casefold() != order_mail.PRO_EMAIL.casefold()):
+        return jsonify(ok=False, error='test_identity_required', message='Utilisez le nom TEST et votre adresse professionnelle.'), 400
+    request_id = request.headers.get('Idempotency-Key', '')
+    if not re.fullmatch(r'[A-Za-z0-9_-]{16,100}', request_id):
+        return jsonify(ok=False, error='missing_request_id'), 400
+    digest = hashlib.sha256(json.dumps({'order':order, 'customer':customer, 'is_test':True}, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+    customer = dict(customer)
+    customer['lastName'] = 'TEST — NE PAS PRÉPARER'
+    customer['email'] = order_mail.PRO_EMAIL
+    customer['comment'] = 'TEST — NE PAS PRÉPARER — AUCUN PAIEMENT RÉEL.\n' + customer.get('comment', '')
+    record = make_order_record(order, customer)
+    record.update(is_test=True, source='admin-test-order', payment={
+        'status':'test_no_charge', 'provider':'none', 'currency':'eur',
+        'deposit_paid_cents':0, 'balance_due_cents':0})
+    try:
+        saved, created = store.insert(record, 'admin-test-' + request_id, digest)
+    except ValueError:
+        return jsonify(ok=False, error='idempotency_conflict'), 409
+    except StorageUnavailable:
+        raise
+    except Exception:
+        app.logger.error('Test order persistence unavailable')
+        return jsonify(ok=False, error='storage_unavailable'), 503
+    email_sent = order_mail.deliver(store, saved, app.logger)
+    return jsonify(ok=True, order_id=saved['id'], is_test=True, email_sent=email_sent), (201 if created else 200)
 
 
 @app.get('/api/sync/orders')
