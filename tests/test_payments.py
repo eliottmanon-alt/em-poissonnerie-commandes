@@ -87,6 +87,16 @@ class DepositTest(unittest.TestCase):
             self.assertEqual(self.checkout().status_code,200)
             self.assertEqual(payments.stripe.StripeClient.call_args.args[0],'rk_test_fixture')
 
+    def test_fractional_promotion_checkout_uses_server_price_and_20_percent(self):
+        self.module.store.save_promotions({'promotions':[{'id':'promo-1','active':True,
+            'title':'Langoustines crues','price':'16,00 €','unit':'€/kg'}]})
+        self.payload['order'].update(guests=1,items=[{'promoId':'promo-1','quantity':3.5,'price':0.01}],total=0.01)
+        response=self.checkout()
+        self.assertEqual(response.status_code,200,response.json)
+        params=self.gateway.v1.checkout.sessions.create.call_args.args[0]
+        self.assertEqual(params['line_items'][0]['price_data']['unit_amount'],1120)
+        self.assertEqual(self.module.store.orders(),[])
+
     def test_server_price_rounding_and_unpaid_attempt_not_synced(self):
         response=self.checkout()
         self.assertEqual(response.status_code,200,response.json)

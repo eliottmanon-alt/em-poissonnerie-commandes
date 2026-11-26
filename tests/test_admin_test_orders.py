@@ -64,6 +64,19 @@ class AdminTestOrderTest(unittest.TestCase):
         changed=copy.deepcopy(self.payload);changed['customer']['comment']='modifié'
         self.assertEqual(self.post(changed).status_code,409)
 
+    def test_fractional_promotion_test_order_calculates_56_euros(self):
+        self.module.store.save_promotions({'promotions':[{'id':'promo-1','active':True,
+            'title':'Langoustines crues','price':'16,00 €','unit':'€/kg'}]})
+        self.payload['order'].update(guests=1,items=[{'promoId':'promo-1','quantity':3.5,'price':0.01}],total=0.01)
+        result=self.post()
+        self.assertEqual(result.status_code,201,result.json)
+        record=self.module.store.orders()[0]
+        self.assertEqual(record['order']['total'],56.0)
+        self.assertEqual(record['order']['items'][0]['lineTotal'],56.0)
+        self.assertEqual(record['order']['items'][0]['quantity'],3.5)
+        self.assertEqual(record['order']['items'][0]['unit'],'kg')
+        self.stripe.assert_not_called()
+
     def test_anonymous_csrf_and_wrong_identity_never_bypass_payment(self):
         outsider=self.module.app.test_client()
         self.assertEqual(outsider.post('/api/admin/test-order',json=self.payload,headers=self.headers).status_code,401)

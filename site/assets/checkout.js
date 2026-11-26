@@ -147,6 +147,7 @@
         method:'POST',headers:{'Content-Type':'application/json','Idempotency-Key':requestState.requestId,...(testOrder ? {'X-CSRF-Token':testCsrf} : {})},
         body:JSON.stringify({order,customer}),signal:AbortSignal.timeout(25000)
       });
+      if (!response.headers.get('content-type')?.includes('application/json')) throw new Error('Le serveur ne peut pas traiter la commande pour le moment. Votre panier est conservé ; réessayez dans un instant.');
       const result = await response.json();
       if (!response.ok || !result.ok) {
         if (result.error === 'payment_expired') {

@@ -280,7 +280,7 @@ def validate(payload):
                 raise ValueError('invalid_promotion')
             seen.add(promo_id)
             price = promotion_price(promo.get('price'))
-            line = price * quantity
+            line = price * Decimal(str(quantity))
             total += line
             unit = 'kg' if promo.get('unit') == '€/kg' else 'lot'
             normalized.append({
@@ -509,6 +509,8 @@ def site_page(name):
         '<script id="emAppearanceBootstrap" type="application/json">' + encoded + '</script>'
     )
     content = render_images((SITE / name).read_text(encoding='utf-8'), page, public['pages'][page]).replace('</head>', bootstrap + '</head>', 1)
+    if name in ('commandes/informations.html', 'commandes/confirmation.html'):
+        content = content.replace('</head>', '<script src="/assets/order-context.js?v=20261126-promo" defer></script></head>', 1)
     return app.response_class(content, mimetype='text/html', headers={'Cache-Control': 'no-store'})
 
 

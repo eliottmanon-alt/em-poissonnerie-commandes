@@ -215,7 +215,7 @@ def register_payments(app, store, validate, make_record):
                 'payment_intent_data':{'metadata':{'em_payment_ref':attempt['ref']}},
                 'line_items':[{'price_data':{'currency':'eur','unit_amount':deposit,
                                            'product_data':{'name':'Acompte 20 % — EM Poissonnerie',
-                                                           'description':'Réservation et préparation de votre plateau. Solde au retrait, par carte ou espèces.'}},'quantity':1}],
+                                                           'description':'Réservation et préparation de votre commande. Solde au retrait, par carte ou espèces.'}},'quantity':1}],
                 'success_url':base+'/commandes/confirmation.html?session_id={CHECKOUT_SESSION_ID}',
                 'cancel_url':base+'/commandes/confirmation.html?payment_cancelled=1',
                 'expires_at':int(attempt['created'])+3600,
