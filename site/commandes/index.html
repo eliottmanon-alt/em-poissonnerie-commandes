@@ -177,20 +177,6 @@ footer{background:var(--ink2);color:#d7e3e6;padding:52px 34px}.footer-inner{max-
 /* Duo typographique EM Poissonnerie */
 body, p, span, a, button, input, select, textarea, label, .nav-sub, .kicker, .eyebrow {font-family:"Josefin Sans", sans-serif;font-weight:300;}
 h1,h2,h3,h4,.nav-title,.fact strong,.maison-item strong {font-family:"Poiret One", sans-serif;font-weight:400;}
-#emBasket{max-width:1120px;margin:18px auto;padding:18px 22px;background:#edf3f5;border:1px solid #c5d5dc;border-radius:12px;color:#183748;font-family:Arial,sans-serif}
-#emBasket h3{margin:0 0 10px;font-size:23px}#emBasket .basket-line{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid #d5e0e5}#emBasket .basket-line span{flex:1;font-family:Arial,sans-serif;font-weight:400}#emBasket button{padding:10px 15px;border:1px solid #294c60;border-radius:6px;background:#fff;color:#183748;cursor:pointer;font-family:Arial,sans-serif;font-weight:600}#emBasket button.basket-next{background:#183748;color:white}#emBasket .basket-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}#emBasket .basket-actions strong{margin-right:auto}#emBasket [hidden]{display:none!important}@media(max-width:650px){#emBasket{margin:12px;padding:14px}#emBasket .basket-line{flex-wrap:wrap}}
- 
-.header-inner{grid-template-columns:170px minmax(0,1fr) auto!important}
-.em-header-actions{display:flex;align-items:center;justify-content:center;gap:12px;padding:12px;min-width:0}
-.em-header-actions .contact{width:auto;min-width:0;padding:0}
-.em-basket-anchor{position:relative}
-#emBasketToggle{display:flex;align-items:center;gap:7px;border:1px solid #b7cbd4;background:#e6eef2;color:#173b50;border-radius:8px;padding:12px;cursor:pointer;font:600 14px Arial,sans-serif;white-space:nowrap}
-#emBasketToggle span{font:600 14px Arial,sans-serif}#emBasketCount{background:#173b50;color:white;border-radius:50px;padding:3px 7px;font:700 12px Arial,sans-serif}
-#emBasket{position:absolute;right:0;top:calc(100% + 10px);width:min(440px,calc(100vw - 28px));max-height:70vh;overflow:auto;z-index:1000;margin:0;box-shadow:0 12px 35px #173b5033;text-align:left}
-#emBasket[hidden]{display:none!important}.basket-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}.basket-heading h3{margin:0!important}#emBasketClose{font-size:20px!important;padding:3px 10px!important}
-header{position:relative;z-index:50}
-@media(max-width:960px){.header-inner{grid-template-columns:125px minmax(0,1fr) auto!important}.em-header-actions .contact{display:none}}
-@media(max-width:650px){.header-inner{display:block!important;position:relative}.em-header-actions{position:absolute;right:12px;top:12px;padding:0;z-index:2}#emBasketToggle{padding:9px}#emBasketToggle span{display:none}#emBasket{width:min(400px,calc(100vw - 24px));right:0}}
 </style>
 <link rel="stylesheet" href="../assets/admin/admin.css">
 <link rel="stylesheet" href="../assets/mobile-order.css?v=20261124">
@@ -205,7 +191,7 @@ header{position:relative;z-index:50}
 <a class="nav-item" href="/#gamme"><span class="nav-title">Notre gamme de produits</span><span class="nav-sub">Poissons, coquillages, fumé &amp; traiteur</span></a>
 <a class="nav-item active" href="/commandes/index.html"><span class="nav-title">Commandes en ligne</span><span class="nav-sub">Plateaux personnalisés &amp; promotions</span></a>
 </nav>
-<div class="em-header-actions"><div class="contact"><a href="/#contact">Contactez-nous</a></div><div class="em-basket-anchor"><button type="button" id="emBasketToggle" aria-expanded="false" aria-controls="emBasket"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M2 3h3l3 13h11l3-9H6"/><circle cx="9" cy="21" r="1"/><circle cx="19" cy="21" r="1"/></svg><span>Panier</span><strong id="emBasketCount">0</strong></button><section id="emBasket" aria-label="Panier commun" hidden><div class="basket-heading"><h3>Mon panier</h3><button type="button" id="emBasketClose" aria-label="Fermer le panier">×</button></div><div id="emBasketLines" aria-live="polite"></div><div class="basket-actions"><strong id="emBasketTotal">0,00 €</strong><button type="button" id="emBasketPlateau">Ajouter un plateau</button><button type="button" id="emBasketPromo">Voir les promotions</button><button type="button" class="basket-next" id="emBasketNext">Continuer ma commande →</button></div></section></div></div>
+<div class="contact"><a href="/#contact">Contactez-nous</a></div>
 </div></header>
 
 <section class="module-menu">
@@ -668,7 +654,7 @@ function orderPromotion(p,quantity){
  const item={name:p.title||'Promotion',unit:p.unit==='€/kg'?'kg':'lot',price,quantity:amount,lineTotal:price*amount,promoId:p.id,promotion:true,origin:p.origin||''};
  promoItems=promoItems.filter(x=>x.promoId!==p.id);promoItems.push(item);
  updateCart();
- setBasketOpen(true);
+ window.emSiteBasket?.notify();
 }
 fetch('/api/promotions',{cache:'no-store'})
   .then(r=>{if(!r.ok) throw new Error('HTTP '+r.status); return r.json();})
@@ -688,19 +674,7 @@ function currentOrder(){
 function syncBasket(){
  const order=currentOrder();
  localStorage.setItem('emPoissonnerieOrder',JSON.stringify(order));
- const lines=document.getElementById('emBasketLines');
- lines.replaceChildren();
- for(const x of order.items){
-   const line=document.createElement('div');line.className='basket-line';
-   const label=document.createElement('span');label.textContent=(x.promoId?'Promo · ':'Plateau · ')+x.name+' — '+x.quantity+' × '+x.unit+' · '+money(x.lineTotal);
-   const remove=document.createElement('button');remove.type='button';remove.textContent='Retirer';remove.onclick=()=>{if(x.promoId)promoItems=promoItems.filter(p=>p.promoId!==x.promoId);else {const i=products.findIndex(p=>p.name===x.name);if(i>=0)rows[i].querySelector('input').value=0;}updateCart();};
-   line.append(label,remove);lines.append(line);
- }
- for(const name of order.specialRequests){const line=document.createElement('div');line.className='basket-line';const label=document.createElement('span');label.textContent=name+' — sur demande';const remove=document.createElement('button');remove.type='button';remove.textContent='Retirer';remove.onclick=()=>{const btn=[...document.querySelectorAll('.special-product .ask-btn')].find(b=>b.closest('.special-product').querySelector('h3').textContent.trim()===name);if(btn){btn.classList.remove('added');btn.textContent='Ajouter à la demande';}updateCart();};line.append(label,remove);lines.append(line);}
- if(!order.items.length&&!order.specialRequests.length)lines.textContent='Votre panier est vide.';
- document.getElementById('emBasketTotal').textContent='Total : '+money(order.total);
- document.getElementById('emBasketCount').textContent=order.items.length+order.specialRequests.length;
- document.getElementById('emBasketNext').disabled=!order.items.length&&!order.specialRequests.length;
+ window.dispatchEvent(new Event('em-cart-change'));
 }
 function updateCart(){
  let total=0,count=0,selected=[];
@@ -784,15 +758,8 @@ function proceed(){
  window.location.href='informations.html';
 }
 document.getElementById('continueBtn').onclick=proceed;
-document.getElementById('emBasketNext').onclick=proceed;
-function setBasketOpen(open){document.getElementById('emBasket').hidden=!open;document.getElementById('emBasketToggle').setAttribute('aria-expanded',String(open));}
-document.getElementById('emBasketToggle').onclick=()=>setBasketOpen(document.getElementById('emBasket').hidden);
-document.getElementById('emBasketClose').onclick=()=>setBasketOpen(false);
-document.addEventListener('keydown',e=>{if(e.key==='Escape')setBasketOpen(false);});
-document.addEventListener('click',e=>{if(!e.target.closest('.em-basket-anchor'))setBasketOpen(false);});
-document.getElementById('emBasketPlateau').onclick=()=>{history.replaceState(null,'','#plateaux');setBasketOpen(false);openModule('plateaux');};
-document.getElementById('emBasketPromo').onclick=()=>{history.replaceState(null,'','#promo');setBasketOpen(false);openModule('promo');};
-
+window.emCartBuilder={proceed,remove(item){if(item.promoId)promoItems=promoItems.filter(x=>x.promoId!==item.promoId);else if(item.special){const btn=[...document.querySelectorAll('.special-product .ask-btn')].find(b=>b.closest('.special-product').querySelector('h3').textContent.trim()===item.name);if(btn){btn.classList.remove('added');btn.textContent='Ajouter à la demande';}}else{const i=products.findIndex(p=>p.name===item.name);if(i>=0)rows[i].querySelector('input').value=0;}updateCart();},module(name){history.replaceState(null,'','#'+name);openModule(name);}};
+function setBasketOpen(open){window.emSiteBasket?.open(open);}
 // Clear a receipt left in the active cart by the previous deployed version.
 try {
   const submitted = JSON.parse(localStorage.getItem('emPoissonnerieSubmission') || 'null');
@@ -829,4 +796,5 @@ updateCart();
 </script>
 <script src="../assets/admin/admin.js"></script>
 <script src="../assets/mobile-order.js?v=20261124"></script>
+<script defer src="/assets/site-basket.js?v=20261126b"></script>
 </body></html>
