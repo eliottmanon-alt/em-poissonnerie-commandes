@@ -72,6 +72,21 @@ class DepositTest(unittest.TestCase):
             self.assertEqual(self.webhook().status_code,503)
         self.gateway.v1.checkout.sessions.create.assert_not_called()
 
+    def test_restricted_keys_require_matching_mode_and_never_accept_public_keys(self):
+        for mode in ('test', 'live'):
+            for prefix in ('sk', 'rk'):
+                with self.subTest(mode=mode, prefix=prefix):
+                    with patch.dict(os.environ, {'EM_STRIPE_MODE':mode, 'STRIPE_SECRET_KEY':f'{prefix}_{mode}_fixture'}):
+                        self.assertTrue(payments.settings()[4])
+            for key in (f'pk_{mode}_fixture', f'rk_{"live" if mode == "test" else "test"}_fixture'):
+                with patch.dict(os.environ, {'EM_STRIPE_MODE':mode, 'STRIPE_SECRET_KEY':key}):
+                    self.assertFalse(payments.settings()[4])
+                    self.assertEqual(self.checkout().status_code,503)
+        self.gateway.v1.checkout.sessions.create.assert_not_called()
+        with patch.dict(os.environ, {'STRIPE_SECRET_KEY':'rk_test_fixture'}):
+            self.assertEqual(self.checkout().status_code,200)
+            self.assertEqual(payments.stripe.StripeClient.call_args.args[0],'rk_test_fixture')
+
     def test_server_price_rounding_and_unpaid_attempt_not_synced(self):
         response=self.checkout()
         self.assertEqual(response.status_code,200,response.json)

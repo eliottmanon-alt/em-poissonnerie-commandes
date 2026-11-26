@@ -31,7 +31,7 @@ def settings():
     mode = os.environ.get('EM_STRIPE_MODE', 'test').strip()
     base = os.environ.get('EM_PUBLIC_URL', 'https://commandes.empoissonnerie.com').rstrip('/')
     parsed = urlparse(base)
-    ready = (mode in ('test', 'live') and secret.startswith('sk_' + mode + '_')
+    ready = (mode in ('test', 'live') and secret.startswith(('sk_' + mode + '_', 'rk_' + mode + '_'))
              and webhook.startswith('whsec_') and parsed.scheme == 'https'
              and bool(parsed.netloc) and not parsed.username and not parsed.query
              and not parsed.fragment and parsed.path in ('', '/'))
