@@ -1,0 +1,35 @@
+/* EM Poissonnerie — shared visual finish, preserving layout and Admin state. */
+:root{--ink:#183746;--ink2:#102f3e;--blue:#28647c;--muted:#465963;--line:#d4dfe3;--white:#f7f9fa;--cream:#eef2f4;--em-surface:#f4f7f8;--em-radius:18px}
+body{background:var(--em-surface);font-weight:400}
+body p,body span,body a,body button,body input,body select,body textarea,body label{font-weight:400}
+header{background:rgba(244,247,248,.98);box-shadow:0 4px 22px rgba(16,47,62,.045)}
+header .nav-item{transition:box-shadow .2s ease,filter .2s ease}
+header .nav-item:nth-child(1){background:linear-gradient(125deg,#eef3f5,#dce7ec)}
+header .nav-item:nth-child(2){background:linear-gradient(125deg,#e4edf0,#cddfe6)}
+header .nav-item:nth-child(3){background:linear-gradient(125deg,#d8e6ec,#bbd0db)}
+header .nav-item:hover,header .nav-item.active{filter:brightness(.97);box-shadow:inset 0 -3px 0 #37667a}
+.nav-sub{color:#374e5c;font-size:.9rem;line-height:1.5}
+.story,.commandes,.reviews,.photo-gallery,.order-reminder,.steps-wrap,.module-menu{background:var(--em-surface)}
+.gamme,.contact-section{background:#eaf0f3}
+.story-copy{background:linear-gradient(135deg,rgba(207,222,231,.66),rgba(226,235,240,.78));border:1px solid rgba(121,151,169,.25);border-radius:var(--em-radius);padding:clamp(20px,2.4vw,36px);box-shadow:0 12px 36px rgba(16,47,62,.045)}
+.story-copy p,.section-head p,.command-body p,.gamme-card p,.contact-card p{color:var(--muted)}
+.command-card{background:linear-gradient(135deg,rgba(207,222,231,.68),rgba(226,235,240,.8));border-color:rgba(121,151,169,.3);border-radius:var(--em-radius);box-shadow:0 8px 28px rgba(16,47,62,.05)}
+.command-card:hover{box-shadow:0 14px 32px rgba(16,47,62,.1)}
+.command-body{background:transparent}
+.gamme-card,.review-card,.contact-card,.sourcing-item,.card{background:#f7f9fa;border-color:var(--line);border-radius:14px;overflow:hidden}
+.review-shell,.map,.story-photo,.gallery-item{border-radius:var(--em-radius)}
+.review-shell{background:rgba(232,240,244,.5)}
+.fact span,.maison-item span,.command-body>span,.command-link,.review-count,.review-card small,.sourcing-item span,.order-reminder-step span,.footer-links,footer p{font-size:.875rem;line-height:1.6}
+.eyebrow{color:#285c73;font-weight:500}
+.photo-note{color:#374e5c;font-size:.875rem;background:rgba(232,240,244,.9);border-radius:8px}
+.hero-copy{text-shadow:0 2px 12px rgba(5,24,35,.3)}
+.hero-copy .kicker{display:inline-block;padding:7px 12px;background:rgba(12,39,53,.6);border:1px solid rgba(232,240,244,.24);border-radius:7px;color:#f7f9fa;font-weight:500;text-shadow:none}
+.hero-btn,.hero-btn.primary,.review-btn,.continue,.ask-btn,.qty button{border-radius:8px}
+.hero-btn.primary,.review-btn:not(.primary),.continue,.ask-btn,.qty button,.per-person-total{background:#f1f5f7}
+.hero-btn.primary{text-shadow:none}
+.cart-sub,.cart-empty,.cart-item small,.meta span,.included{color:#dfebf0}
+.qty-label,.portion span,.availability-chip,.price small,.tag{font-size:.875rem;line-height:1.5}
+input,select,textarea{color:var(--ink)}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #397c99;outline-offset:3px}
+@media(max-width:650px){.story-copy{padding:22px 18px}.command-body{padding:22px 18px}.command-body h3{font-size:clamp(1.75rem,7vw,2.325rem)}.story-copy h2{font-size:clamp(2rem,9vw,3.125rem)}.story-facts{gap:8px}.fact strong{font-size:1.7rem}.fact span{font-size:.8125rem}.command-grid{grid-template-columns:minmax(0,1fr)}.story-copy,.command-card{min-width:0}.story-copy h2,.command-body h3{overflow-wrap:break-word}}
+@media(prefers-reduced-motion:reduce){header .nav-item,.command-card{transition:none}.command-card:hover{transform:none}}
