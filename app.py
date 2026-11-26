@@ -264,6 +264,7 @@ def validate(payload):
     if type(guests) is not int or not 1 <= guests <= 1000:
         raise ValueError('invalid_guests')
     total = Decimal('0')
+    plateau_total = Decimal('0')
     normalized = []
     seen = set()
     promos = active_promotions()
@@ -306,9 +307,13 @@ def validate(payload):
         price = Decimal(str(product['price']))
         line = price * quantity
         total += line
+        plateau_total += line
         normalized.append({'name': product['name'], 'unit': product['unit'], 'price': float(price), 'quantity': quantity, 'lineTotal': float(line)})
+    if normalized and all(x.get('promoId') for x in normalized) and not special:
+        customer = dict(customer)
+        customer['comment'] = ''
     clean = dict(order)
-    clean.update(items=normalized, specialRequests=list(dict.fromkeys(special)), total=float(total), average=round(float(total) / guests, 2), giftUnlocked=total >= 80)
+    clean.update(items=normalized, specialRequests=list(dict.fromkeys(special)), total=float(total), plateauTotal=float(plateau_total), average=round(float(plateau_total) / guests, 2), giftUnlocked=plateau_total >= 80)
     return clean, customer
 
 
