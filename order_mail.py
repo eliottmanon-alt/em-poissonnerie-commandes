@@ -26,8 +26,11 @@ def messages(record):
              'Lieu : marché couvert de Rochefort, 73 rue Toufaire, 17300 Rochefort', '', 'Votre sélection :']
     for item in order['items']:
         lines.append(f"• {item['quantity']} × {item['name']} ({item['unit']}) : {amount(item['lineTotal'])}")
-    for special in order.get('specialRequests', []):
-        lines.append('• Demande spéciale, prix à confirmer : ' + special)
+    if order.get('specialRequests'):
+        lines += ['', 'PRODUITS SPÉCIAUX DEMANDÉS — À PRÉVOIR :']
+        for special in order['specialRequests']:
+            lines.append('• ' + special + ' — 1 demi-pièce, prix à confirmer')
+        lines.append('')
     lines += ['', 'Total des articles chiffrés : ' + amount(order['total'])]
     payment = record.get('payment', {})
     if payment.get('status') == 'deposit_paid':
