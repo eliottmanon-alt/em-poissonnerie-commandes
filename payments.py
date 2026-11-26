@@ -224,8 +224,12 @@ def register_payments(app, store, validate, make_record):
                 raise ValueError('invalid_checkout_url')
             payments.bind(attempt['ref'], session)
             return jsonify(ok=True,checkout_url=session['url'],session_id=session['id'])
-        except Exception:
-            app.logger.warning('Stripe Checkout unavailable; no order confirmed')
+        except Exception as error:
+            # Log categories only: Stripe error messages can contain API secrets.
+            category = type(error).__name__
+            status = getattr(error, 'http_status', None)
+            status = status if type(status) is int else None
+            app.logger.warning('Stripe Checkout unavailable; no order confirmed (category=%s, http_status=%s)', category, status)
             return jsonify(ok=False,error='checkout_unavailable',message='Le paiement est temporairement indisponible. Votre panier est conservé ; réessayez.'),502
 
     @app.get('/api/payments/status')
