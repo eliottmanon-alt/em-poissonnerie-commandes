@@ -80,7 +80,7 @@ footer img{width:105px;background:#fff;border-radius:50%}footer p{font-size:12px
 </style>
 <link rel="stylesheet" href="../assets/admin/admin.css">
 <link rel="stylesheet" href="../assets/visual-refresh.css?v=20261126">
-</head>
+<style>[hidden]{display:none!important}</style></head>
 <body>
 <div class="topbar">ELIOTT, MANON &amp; LEUR ÉQUIPE VOUS ACCUEILLENT AUX HALLES DE ROCHEFORT • MARDI, JEUDI &amp; SAMEDI • 7H–14H</div>
 <header><div class="header-inner">
@@ -110,7 +110,7 @@ footer img{width:105px;background:#fff;border-radius:50%}footer p{font-size:12px
 <div class="check-circle">✓</div>
 <div class="eyebrow">Étape 3 sur 3</div>
 <h1>Tout est prêt pour votre commande.</h1>
-<p>Vérifiez vos coordonnées, votre créneau de retrait et le contenu du plateau. Vous pourrez encore revenir en arrière avant de valider définitivement.</p>
+<p>Vérifiez vos coordonnées, votre créneau de retrait et le contenu de votre panier. Vous pourrez encore revenir en arrière avant de valider définitivement.</p>
 </div>
 
 <div class="confirm-grid">
@@ -128,7 +128,7 @@ footer img{width:105px;background:#fff;border-radius:50%}footer p{font-size:12px
   </section>
 
   <section class="panel">
-    <h2>Votre plateau</h2>
+    <h2>Votre panier</h2>
     <div class="order-items" id="items"></div>
   </section>
 
@@ -146,7 +146,7 @@ footer img{width:105px;background:#fff;border-radius:50%}footer p{font-size:12px
   <div class="sumrow"><span>Nombre de convives</span><strong id="guests">—</strong></div>
   <div class="sumrow"><span>Articles ajoutés</span><strong id="articleCount">—</strong></div>
   <div class="sumrow"><span>Prix moyen / convive</span><strong id="average">0,00 €</strong></div>
-  <div class="sumrow big"><span>Total du plateau</span><strong id="total">0,00 €</strong></div>
+  <div class="sumrow big"><span>Total de la commande</span><strong id="total">0,00 €</strong></div>
   <div class="gift" id="gift">Bouteille offerte dès 80 € d’achat.</div>
 </aside>
 </div>
@@ -179,6 +179,10 @@ if(customer.pickupDate){
 }
 
 const items=order.items||[];
+const plateauItems=items.filter(x=>!x.promoId);
+const hasPlateau=plateauItems.length>0||(order.specialRequests||[]).length>0;
+const plateauTotal=plateauItems.reduce((n,x)=>n+Number(x.lineTotal||0),0);
+if(!hasPlateau){document.getElementById('comment').closest('.detail').hidden=true;document.getElementById('guests').closest('.sumrow').hidden=true;document.getElementById('average').closest('.sumrow').hidden=true;}
 document.getElementById('items').innerHTML=items.length
   ? items.map(x=>`<div class="order-item"><div>${safe(x.name)}<small>${safe(x.quantity)} × ${safe(x.unit)} — ${money(x.price)} l’unité</small></div><strong>${money(x.lineTotal)}</strong></div>`).join('')
   : '<div class="order-item"><div>Aucun article enregistré.</div></div>';
@@ -189,7 +193,7 @@ document.getElementById('average').textContent=money(order.average||0);
 document.getElementById('total').textContent=money(order.total||0);
 
 const gift=document.getElementById('gift');
-if(order.giftUnlocked){
+if(!hasPlateau){gift.hidden=true;} else if(plateauTotal>=80){
   gift.innerHTML='<strong style="display:block;color:#fff;margin-bottom:4px">✓ Bouteille offerte débloquée</strong>Jean Dellac Sauvignon offert avec cette commande.';
 } else {
   gift.textContent='Bouteille offerte à partir de 80 € d’achat.';
