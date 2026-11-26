@@ -33,3 +33,11 @@ input,select,textarea{color:var(--ink)}
 a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #397c99;outline-offset:3px}
 @media(max-width:650px){.story-copy{padding:22px 18px}.command-body{padding:22px 18px}.command-body h3{font-size:clamp(1.75rem,7vw,2.325rem)}.story-copy h2{font-size:clamp(2rem,9vw,3.125rem)}.story-facts{gap:8px}.fact strong{font-size:1.7rem}.fact span{font-size:.8125rem}.command-grid{grid-template-columns:minmax(0,1fr)}.story-copy,.command-card{min-width:0}.story-copy h2,.command-body h3{overflow-wrap:break-word}}
 @media(prefers-reduced-motion:reduce){header .nav-item,.command-card{transition:none}.command-card:hover{transform:none}}
+
+/* Story: shared frame with photograph naturally aligned to the text. */
+#histoire .story-grid{display:flow-root;box-sizing:border-box;background:linear-gradient(135deg,rgba(207,222,231,.66),rgba(226,235,240,.78));border:1px solid rgba(121,151,169,.25);border-radius:var(--em-radius);padding:clamp(20px,2.4vw,36px);box-shadow:0 12px 36px rgba(16,47,62,.045)}
+#histoire .story-photo{float:left;width:43%;height:auto;aspect-ratio:4/5;margin:0 clamp(20px,3vw,42px) 18px 0;overflow:hidden}
+#histoire .story-photo img{width:100%;height:100%;object-fit:cover;display:block}
+#histoire .story-copy{display:contents;background:none;border:0;box-shadow:none;padding:0}
+#histoire .story-copy .story-facts{clear:both}
+@media(max-width:850px){#histoire .story-photo{float:none;width:100%;aspect-ratio:16/10;margin:0 0 20px}#histoire .story-grid{padding:18px}}
