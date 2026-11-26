@@ -117,7 +117,7 @@ footer img{width:105px;background:#fff;border-radius:50%} footer p{font-size:12p
 </style>
 <link rel="stylesheet" href="../assets/admin/admin.css">
 <link rel="stylesheet" href="../assets/visual-refresh.css?v=20261126">
-</head>
+<style>[hidden]{display:none!important}</style></head>
 <body>
 <div class="topbar">ELIOTT, MANON &amp; LEUR ÉQUIPE VOUS ACCUEILLENT AUX HALLES DE ROCHEFORT • MARDI, JEUDI &amp; SAMEDI • 7H–14H</div>
 
@@ -185,10 +185,10 @@ footer img{width:105px;background:#fff;border-radius:50%} footer p{font-size:12p
   </section>
 
   <div class="actions">
-    <button class="back-btn" type="button" id="backBtn">← Modifier mon plateau</button>
+    <button class="back-btn" type="button" id="backBtn">← Modifier mon panier</button>
     <button class="next-btn" type="submit">Continuer vers la confirmation →</button>
   </div>
-  <div class="secure-note">Vos informations sont utilisées uniquement pour préparer et suivre votre commande. Cette démo n’envoie encore aucune donnée.</div>
+  <div class="secure-note">Vos informations sont utilisées uniquement pour préparer et suivre votre commande. </div>
 </form>
 
 <aside class="summary">
@@ -200,7 +200,7 @@ footer img{width:105px;background:#fff;border-radius:50%} footer p{font-size:12p
   </div>
   <div class="avg-box"><span>Prix moyen par convive</span><strong id="sumAverage">0,00 €</strong></div>
   <div class="order-items" id="orderItems"></div>
-  <div class="total-line"><span>Total du plateau</span><strong id="sumTotal">0,00 €</strong></div>
+  <div class="total-line"><span>Total de la commande</span><strong id="sumTotal">0,00 €</strong></div>
   <div class="gift-note" id="giftNote">Bouteille offerte dès 80 € d’achat.</div>
   <div class="pickup-summary"><strong>Retrait aux Halles de Rochefort</strong><span id="pickupPreview">Choisissez votre date et votre heure.</span></div>
 </aside>
@@ -216,6 +216,10 @@ const money=v=>Number(v||0).toLocaleString('fr-FR',{minimumFractionDigits:2,maxi
 const stored=localStorage.getItem('emPoissonnerieOrder');
 const order=stored?JSON.parse(stored):{guests:4,items:[],total:0,average:0,giftUnlocked:false};
 
+const plateauItems=(order.items||[]).filter(x=>!x.promoId);
+const hasPlateau=plateauItems.length>0||(order.specialRequests||[]).length>0;
+const plateauTotal=plateauItems.reduce((n,x)=>n+Number(x.lineTotal||0),0);
+if(!hasPlateau){document.getElementById('comment').closest('label').hidden=true;document.getElementById('sumGuests').closest('.summary-meta').hidden=true;document.getElementById('sumAverage').closest('.avg-box').hidden=true;}
 document.getElementById('sumGuests').textContent=order.guests||1;
 document.getElementById('sumItems').textContent=(order.items||[]).reduce((n,x)=>n+(x.quantity||0),0);
 document.getElementById('sumAverage').textContent=money(order.average||0);
@@ -225,15 +229,15 @@ const itemsBox=document.getElementById('orderItems');
 if(order.items && order.items.length){
   itemsBox.innerHTML=order.items.map(x=>`<div class="order-item"><div>${safe(x.name)}<small>${safe(x.quantity)} × ${safe(x.unit)}</small></div><strong>${money(x.lineTotal)}</strong></div>`).join('');
 } else {
-  itemsBox.innerHTML='<div class="order-item"><div>Aucun article enregistré.<small>Retournez au plateau pour faire votre sélection.</small></div></div>';
+  itemsBox.innerHTML='<div class="order-item"><div>Aucun article enregistré.<small>Retournez au panier pour faire votre sélection.</small></div></div>';
 }
 
 const gift=document.getElementById('giftNote');
-if(order.giftUnlocked){
+if(!hasPlateau){gift.hidden=true;} else if(plateauTotal>=80){
   gift.classList.add('unlocked');
   gift.innerHTML='<strong style="display:block;color:#fff;margin-bottom:3px">✓ Bouteille offerte débloquée</strong>Votre Jean Dellac Sauvignon sera ajouté à la commande.';
 } else {
-  const remain=Math.max(0,80-(order.total||0));
+  const remain=Math.max(0,80-plateauTotal);
   gift.textContent='Encore '+money(remain)+' pour atteindre la bouteille offerte.';
 }
 
@@ -280,7 +284,7 @@ document.getElementById('customerForm').addEventListener('submit',e=>{
     email:document.getElementById('email').value.trim(),
     pickupDate:dateInput.value,
     pickupTime:timeInput.value,
-    comment:document.getElementById('comment').value.trim()
+    comment:hasPlateau?document.getElementById('comment').value.trim():''
   };
   localStorage.setItem('emPoissonnerieCustomer',JSON.stringify(customer));
   window.location.href='confirmation.html';
