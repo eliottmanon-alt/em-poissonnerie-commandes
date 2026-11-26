@@ -209,7 +209,7 @@ def register_payments(app, store, validate, make_record):
         try:
             client = stripe.StripeClient(key, max_network_retries=1, http_client=stripe.RequestsClient(timeout=12))
             session = client.v1.checkout.sessions.create({
-                'mode':'payment','payment_method_types':['card'],'locale':'fr',
+                'mode':'payment','allowed_payment_method_types':['card'],'locale':'fr',
                 'customer_email':customer['email'],'client_reference_id':attempt['ref'],
                 'metadata':{'em_payment_ref':attempt['ref']},
                 'payment_intent_data':{'metadata':{'em_payment_ref':attempt['ref']}},

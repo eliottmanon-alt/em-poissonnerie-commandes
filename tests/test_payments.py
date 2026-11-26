@@ -77,7 +77,8 @@ class DepositTest(unittest.TestCase):
         self.assertEqual(response.status_code,200,response.json)
         params=self.gateway.v1.checkout.sessions.create.call_args.args[0]
         self.assertEqual(params['line_items'][0]['price_data']['unit_amount'],200)
-        self.assertEqual(params['payment_method_types'],['card'])
+        self.assertEqual(params['allowed_payment_method_types'],['card'])
+        self.assertNotIn('payment_method_types',params)
         self.assertEqual(self.module.store.orders(),[])
         self.mail.assert_not_called()
         self.assertEqual(payments.amounts({'total':7.9}),(790,158,632))
