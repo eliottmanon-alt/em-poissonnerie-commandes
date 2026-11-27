@@ -115,10 +115,13 @@ def _normalize_promotions(payload):
         if not isinstance(row, dict):
             raise ValueError('invalid_promotions')
         promo_id = str(row.get('id') or '').strip()
-        if not re.fullmatch(r'promo-[1-9][0-9]{0,8}', promo_id) or promo_id in seen:
-            raise ValueError('invalid_promotions')
+        if not re.fullmatch(r'promo-(?:[1-9][0-9]{0,8}|[a-f0-9]{32})', promo_id) or promo_id in seen:
+            raise ValueError('invalid_promotion_id')
         seen.add(promo_id)
-        slot = int(promo_id.split('-')[1])
+        slot_value = row.get('slot', promo_id.split('-')[1])
+        if isinstance(slot_value, bool) or not re.fullmatch(r'[1-9][0-9]{0,8}', str(slot_value)):
+            raise ValueError('invalid_promotion_slot')
+        slot = int(slot_value)
         title = str(row.get('title') or '').strip()[:160]
         price = str(row.get('price') or '').strip()[:80]
         unit = str(row.get('unit') or '€/kg').strip()
