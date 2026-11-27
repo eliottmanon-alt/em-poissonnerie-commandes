@@ -291,7 +291,12 @@ def validate(payload):
             line = price * Decimal(str(quantity))
             total += line
             unit = 'kg' if promo.get('unit') == '€/kg' else 'lot'
+            if unit == 'lot' and int(quantity) != quantity:
+                raise ValueError('invalid_lot_quantity')
+            pieces = int(promo.get('pieces_per_lot') or 1)
+            lot_details = {'pieces_per_lot': pieces, 'total_pieces': int(quantity) * pieces} if unit == 'lot' else {}
             normalized.append({
+                **lot_details,
                 'name': str(promo.get('title') or 'Promotion')[:160],
                 'unit': unit,
                 'price': float(price),
