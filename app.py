@@ -107,7 +107,7 @@ def _normalize_promotions(payload):
     if rows is None and isinstance(payload, dict) and payload.get('id'):
         current = store.promotions().get('promotions', [])
         rows = [x for x in current if isinstance(x, dict) and x.get('id') != payload.get('id')] + [payload]
-    if not isinstance(rows, list) or len(rows) > 2:
+    if not isinstance(rows, list):
         raise ValueError('invalid_promotions')
     normalized = []
     seen = set()
@@ -115,15 +115,19 @@ def _normalize_promotions(payload):
         if not isinstance(row, dict):
             raise ValueError('invalid_promotions')
         promo_id = str(row.get('id') or '').strip()
-        if promo_id not in ('promo-1', 'promo-2') or promo_id in seen:
+        if not re.fullmatch(r'promo-[1-9][0-9]{0,8}', promo_id) or promo_id in seen:
             raise ValueError('invalid_promotions')
         seen.add(promo_id)
-        slot = 1 if promo_id == 'promo-1' else 2
+        slot = int(promo_id.split('-')[1])
         title = str(row.get('title') or '').strip()[:160]
         price = str(row.get('price') or '').strip()[:80]
         unit = str(row.get('unit') or '€/kg').strip()
         if unit not in ('€/kg', 'le lot'):
             raise ValueError('invalid_promotion_unit')
+        pieces = row.get('pieces_per_lot', 1)
+        if isinstance(pieces, bool) or not re.fullmatch(r'[1-9][0-9]{0,8}', str(pieces)):
+            raise ValueError('invalid_pieces_per_lot')
+        pieces = int(pieces) if unit == 'le lot' else 1
         origin = str(row.get('origin') or '').strip()[:200]
         photo = str(row.get('photo') or '').strip()
         if photo and (not photo.startswith('data:image/') or ';base64,' not in photo or len(photo) > 3_500_000):
@@ -143,7 +147,7 @@ def _normalize_promotions(payload):
             raise ValueError('incomplete_promotion')
         normalized.append({
             'id': promo_id, 'slot': slot, 'active': active, 'title': title, 'price': price,
-            'unit': unit, 'origin': origin, 'photo': photo, 'start_date': start_date, 'end_date': end_date,
+            'unit': unit, 'pieces_per_lot': pieces, 'origin': origin, 'photo': photo, 'start_date': start_date, 'end_date': end_date,
             'updated_at': str(row.get('updated_at') or now())[:80]
         })
     for promo_id, slot in [('promo-1', 1), ('promo-2', 2)]:
