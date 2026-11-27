@@ -180,7 +180,7 @@ h1,h2,h3,h4,.nav-title,.fact strong,.maison-item strong {font-family:"Poiret One
 </style>
 <link rel="stylesheet" href="../assets/admin/admin.css">
 <link rel="stylesheet" href="../assets/mobile-order.css?v=20261124">
-<link rel="stylesheet" href="../assets/visual-refresh.css?v=20261126">
+<link rel="stylesheet" href="../assets/visual-refresh.css?v=20261127-mobile">
 </head>
 <body>
 <div class="topbar">ELIOTT, MANON &amp; LEUR ÉQUIPE VOUS ACCUEILLENT AUX HALLES DE ROCHEFORT • MARDI, JEUDI &amp; SAMEDI • 7H–14H</div>
@@ -797,4 +797,22 @@ updateCart();
 <script src="../assets/admin/admin.js"></script>
 <script src="../assets/mobile-order.js?v=20261124"></script>
 <script defer src="/assets/site-basket.js?v=20261126b"></script>
+<script>
+(()=>{
+ const mq=matchMedia('(max-width:650px)');
+ const cards=[...document.querySelectorAll('.module-card[data-module]')];
+ const labels={plateaux:'Plateaux',promo:'Promotions'};
+ const originals=new Map();
+ function sync(){
+  for(const card of cards){
+   const h=card.querySelector('.module-copy h3');if(!h||!labels[card.dataset.module])continue;
+   if(mq.matches){if(!originals.has(h))originals.set(h,h.innerHTML);if(h.textContent!==labels[card.dataset.module])h.textContent=labels[card.dataset.module];}
+   else if(originals.has(h)){h.innerHTML=originals.get(h);originals.delete(h);}
+  }
+ }
+ sync();mq.addEventListener('change',sync);
+ const observer=new MutationObserver(()=>{if(mq.matches)sync();});
+ cards.forEach(card=>observer.observe(card,{childList:true,subtree:true,characterData:true}));
+})();
+</script>
 </body></html>
