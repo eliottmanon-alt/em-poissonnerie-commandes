@@ -603,7 +603,8 @@ function parsePromoPrice(value){
 }
 function promoPriceText(p){
   const price=escapePromoText(p.price||'');
-  const unit=escapePromoText(p.unit||'');
+  const pieces=Math.max(1,parseInt(p.pieces_per_lot,10)||1);
+  const unit=escapePromoText(p.unit==='le lot'?'le lot de '+pieces+' pièce'+(pieces>1?'s':''):(p.unit||''));
   return price + (unit ? '<span class="promo-live-unit">'+unit+'</span>' : '');
 }
 function promoStep(p){return p.unit==='€/kg'?0.5:1}
